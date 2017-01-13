@@ -1,0 +1,15 @@
+{
+  "name": "oscar-project-package",
+  "version": "1.0.0",
+  "description": "Node package for SENG 371 Milestone 1 code",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://Cailan@jira.seng.uvic.ca:8051/scm/pals/oscarer.git"
+  },
+  "author": "",
+  "license": "ISC"
+}
