@@ -1,138 +1,243 @@
 function init() {
     if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
-    var $ = go.GraphObject.make;  // for conciseness in defining templates
+    var $ = go.GraphObject.make;
+
     myDiagram =
-      $(go.Diagram, "myDiagramDiv",  // must name or refer to the DIV HTML element
+      $(go.Diagram, "myDiagramDiv",
         {
           initialContentAlignment: go.Spot.Center,
-          allowDelete: false,
-          allowCopy: false,
-          layout: $(go.ForceDirectedLayout),
-          "undoManager.isEnabled": true
+          "undoManager.isEnabled": true,
+          layout: $(go.TreeLayout,
+                    { // this only lays out in trees nodes connected by "generalization" links
+                      angle: 90,
+                      path: go.TreeLayout.PathSource,  // links go from child to parent
+                      setsPortSpot: false,  // keep Spot.AllSides for link connection spot
+                      setsChildPortSpot: false,  // keep Spot.AllSides
+                      // nodes not connected by "generalization" links are laid out horizontally
+                      arrangement: go.TreeLayout.ArrangementHorizontal
+                    })
         });
-    // define several shared Brushes
-    var bluegrad = $(go.Brush, "Linear", { 0: "rgb(150, 150, 250)", 0.5: "rgb(86, 86, 186)", 1: "rgb(86, 86, 186)" });
-    var greengrad = $(go.Brush, "Linear", { 0: "rgb(158, 209, 159)", 1: "rgb(67, 101, 56)" });
-    var redgrad = $(go.Brush, "Linear", { 0: "rgb(206, 106, 100)", 1: "rgb(180, 56, 50)" });
-    var yellowgrad = $(go.Brush, "Linear", { 0: "rgb(254, 221, 50)", 1: "rgb(254, 182, 50)" });
-    var lightgrad = $(go.Brush, "Linear", { 1: "#E6E6FA", 0: "#FFFAF0" });
-    // the template for each attribute in a node's array of item data
-    var itemTempl =
+
+    // show visibility or access as a single character at the beginning of each property or method
+    function convertVisibility(v) {
+      switch (v) {
+        case "public": return "+";
+        case "private": return "-";
+        case "protected": return "#";
+        case "package": return "~";
+        default: return v;
+      }
+    }
+
+    // the item template for properties
+    var propertyTemplate =
       $(go.Panel, "Horizontal",
-        $(go.Shape,
-          { desiredSize: new go.Size(10, 10) },
-          new go.Binding("figure", "figure"),
-          new go.Binding("fill", "color")),
+        // property visibility/access
         $(go.TextBlock,
-          { stroke: "#333333",
-            font: "bold 14px sans-serif" },
-          new go.Binding("text", "name"))
+          { isMultiline: false, editable: false, width: 12 },
+          new go.Binding("text", "visibility", convertVisibility)),
+        // property name, underlined if scope=="class" to indicate static property
+        $(go.TextBlock,
+          { isMultiline: false, editable: true },
+          new go.Binding("text", "name").makeTwoWay(),
+          new go.Binding("isUnderline", "scope", function(s) { return s[0] === 'c' })),
+        // property type, if known
+        $(go.TextBlock, "",
+          new go.Binding("text", "type", function(t) { return (t ? ": " : ""); })),
+        $(go.TextBlock,
+          { isMultiline: false, editable: true },
+          new go.Binding("text", "type").makeTwoWay()),
+        // property default value, if any
+        $(go.TextBlock,
+          { isMultiline: false, editable: false },
+          new go.Binding("text", "default", function(s) { return s ? " = " + s : ""; }))
       );
-    // define the Node template, representing an entity
+
+    // the item template for methods
+    var methodTemplate =
+      $(go.Panel, "Horizontal",
+        // method visibility/access
+        $(go.TextBlock,
+          { isMultiline: false, editable: false, width: 12 },
+          new go.Binding("text", "visibility", convertVisibility)),
+        // method name, underlined if scope=="class" to indicate static method
+        $(go.TextBlock,
+          { isMultiline: false, editable: true },
+          new go.Binding("text", "name").makeTwoWay(),
+          new go.Binding("isUnderline", "scope", function(s) { return s[0] === 'c' })),
+        // method parameters
+        $(go.TextBlock, "()",
+          // this does not permit adding/editing/removing of parameters via inplace edits
+          new go.Binding("text", "parameters", function(parr) {
+              var s = "(";
+              for (var i = 0; i < parr.length; i++) {
+                var param = parr[i];
+                if (i > 0) s += ", ";
+                s += param.name + ": " + param.type;
+              }
+              return s + ")";
+          })),
+        // method return type, if any
+        $(go.TextBlock, "",
+          new go.Binding("text", "type", function(t) { return (t ? ": " : ""); })),
+        $(go.TextBlock,
+          { isMultiline: false, editable: true },
+          new go.Binding("text", "type").makeTwoWay())
+      );
+
+    // this simple template does not have any buttons to permit adding or
+    // removing properties or methods, but it could!
     myDiagram.nodeTemplate =
-      $(go.Node, "Auto",  // the whole node panel
-        { selectionAdorned: true,
-          resizable: true,
-          layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
+      $(go.Node, "Auto",
+        {
+          locationSpot: go.Spot.Center,
           fromSpot: go.Spot.AllSides,
-          toSpot: go.Spot.AllSides,
-          isShadowed: true,
-          shadowColor: "#C5C1AA" },
-        new go.Binding("location", "location").makeTwoWay(),
-        // define the node's outer shape, which will surround the Table
-        $(go.Shape, "Rectangle",
-          { fill: lightgrad, stroke: "#756875", strokeWidth: 3 }),
+          toSpot: go.Spot.AllSides
+        },
+        $(go.Shape, { fill: "lightyellow" }),
         $(go.Panel, "Table",
-          { margin: 8, stretch: go.GraphObject.Fill },
-          $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
-          // the table header
+          { defaultRowSeparatorStroke: "black" },
+          // header
           $(go.TextBlock,
             {
-              row: 0, alignment: go.Spot.Center,
-              margin: new go.Margin(0, 14, 0, 2),  // leave room for Button
-              font: "bold 16px sans-serif"
+              row: 0, columnSpan: 2, margin: 3, alignment: go.Spot.Center,
+              font: "bold 12pt sans-serif",
+              isMultiline: false, editable: true
             },
-            new go.Binding("text", "key")),
-          // the collapse/expand button
-          $("PanelExpanderButton", "LIST",  // the name of the element whose visibility this button toggles
-            { row: 0, alignment: go.Spot.TopRight }),
-          // the list of Panels, each showing an attribute
-          $(go.Panel, "Vertical",
+            new go.Binding("text", "name").makeTwoWay()),
+          // properties
+          $(go.TextBlock, "Properties",
+            { row: 1, font: "italic 10pt sans-serif" },
+            new go.Binding("visible", "visible", function(v) { return !v; }).ofObject("PROPERTIES")),
+          $(go.Panel, "Vertical", { name: "PROPERTIES" },
+            new go.Binding("itemArray", "properties"),
             {
-              name: "LIST",
-              row: 1,
-              padding: 3,
-              alignment: go.Spot.TopLeft,
-              defaultAlignment: go.Spot.Left,
-              stretch: go.GraphObject.Horizontal,
-              itemTemplate: itemTempl
-            },
-            new go.Binding("itemArray", "items"))
-        )  // end Table Panel
-      );  // end Node
-    // define the Link template, representing a relationship
-    myDiagram.linkTemplate =
-      $(go.Link,  // the whole link panel
-        {
-          selectionAdorned: true,
-          layerName: "Foreground",
-          reshapable: true,
-          routing: go.Link.AvoidsNodes,
-          corner: 5,
-          curve: go.Link.JumpOver
-        },
-        $(go.Shape,  // the link shape
-          { stroke: "#303B45", strokeWidth: 2.5 }),
-        $(go.TextBlock,  // the "from" label
-          {
-            textAlign: "center",
-            font: "bold 14px sans-serif",
-            stroke: "#1967B3",
-            segmentIndex: 0,
-            segmentOffset: new go.Point(NaN, NaN),
-            segmentOrientation: go.Link.OrientUpright
-          },
-          new go.Binding("text", "text")),
-        $(go.TextBlock,  // the "to" label
-          {
-            textAlign: "center",
-            font: "bold 14px sans-serif",
-            stroke: "#1967B3",
-            segmentIndex: -1,
-            segmentOffset: new go.Point(NaN, NaN),
-            segmentOrientation: go.Link.OrientUpright
-          },
-          new go.Binding("text", "toText"))
+              row: 1, margin: 3, stretch: go.GraphObject.Fill,
+              defaultAlignment: go.Spot.Left, background: "lightyellow",
+              itemTemplate: propertyTemplate
+            }
+          ),
+          $("PanelExpanderButton", "PROPERTIES",
+            { row: 1, column: 1, alignment: go.Spot.TopRight, visible: false },
+            new go.Binding("visible", "properties", function(arr) { return arr.length > 0; })),
+          // methods
+          $(go.TextBlock, "Methods",
+            { row: 2, font: "italic 10pt sans-serif" },
+            new go.Binding("visible", "visible", function(v) { return !v; }).ofObject("METHODS")),
+          $(go.Panel, "Vertical", { name: "METHODS" },
+            new go.Binding("itemArray", "methods"),
+            {
+              row: 2, margin: 3, stretch: go.GraphObject.Fill,
+              defaultAlignment: go.Spot.Left, background: "lightyellow",
+              itemTemplate: methodTemplate
+            }
+          ),
+          $("PanelExpanderButton", "METHODS",
+            { row: 2, column: 1, alignment: go.Spot.TopRight, visible: false },
+            new go.Binding("visible", "methods", function(arr) { return arr.length > 0; }))
+        )
       );
-    // create the model for the E-R diagram
-    //THIS IS THE SAMPLE GIVEN, FOR REFERENCE
-     var nodeDataArray = [
-       { key: "Products",
-         items: [ { name: "ProductID", iskey: true, figure: "Decision", color: yellowgrad },
-                  { name: "ProductName", iskey: false, figure: "Cube1", color: bluegrad },
-                  { name: "SupplierID", iskey: false, figure: "Decision", color: "purple" },
-                  { name: "CategoryID", iskey: false, figure: "Decision", color: "purple" } ] },
-       { key: "Suppliers",
-         items: [ { name: "SupplierID", iskey: true, figure: "Decision", color: yellowgrad },
-                  { name: "CompanyName", iskey: false, figure: "Cube1", color: bluegrad },
-                  { name: "ContactName", iskey: false, figure: "Cube1", color: bluegrad },
-                  { name: "Address", iskey: false, figure: "Cube1", color: bluegrad } ] },
-      { key: "Categories",
-         items: [ { name: "CategoryID", iskey: true, figure: "Decision", color: yellowgrad },
-                  { name: "CategoryName", iskey: false, figure: "Cube1", color: bluegrad },
-                  { name: "Description", iskey: false, figure: "Cube1", color: bluegrad },
-                  { name: "Picture", iskey: false, figure: "TriangleUp", color: redgrad } ] },
-       { key: "Order Details",
-         items: [ { name: "OrderID", iskey: true, figure: "Decision", color: yellowgrad },
-                  { name: "ProductID", iskey: true, figure: "Decision", color: yellowgrad },
-                  { name: "UnitPrice", iskey: false, figure: "MagneticData", color: greengrad },
-                  { name: "Quantity", iskey: false, figure: "MagneticData", color: greengrad },
-                 { name: "Discount", iskey: false, figure: "MagneticData", color: greengrad } ] },
-     ];
-     var linkDataArray = [
-       { from: "Products", to: "Suppliers", text: "0..N", toText: "1" },
-       { from: "Products", to: "Categories", text: "0..N", toText: "1" },
-       { from: "Order Details", to: "Products", text: "0..N", toText: "1" }
-     ];
-     myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
-   }
+
+    function convertIsTreeLink(r) {
+      return r === "generalization";
+    }
+
+    function convertFromArrow(r) {
+      switch (r) {
+        case "generalization": return "";
+        default: return "";
+      }
+    }
+
+    function convertToArrow(r) {
+      switch (r) {
+        case "generalization": return "Triangle";
+        case "aggregation": return "StretchedDiamond";
+        default: return "";
+      }
+    }
+
+    myDiagram.linkTemplate =
+      $(go.Link,
+        { routing: go.Link.Orthogonal },
+        new go.Binding("isLayoutPositioned", "relationship", convertIsTreeLink),
+        $(go.Shape),
+        $(go.Shape, { scale: 1.3, fill: "white" },
+          new go.Binding("fromArrow", "relationship", convertFromArrow)),
+        $(go.Shape, { scale: 1.3, fill: "white" },
+          new go.Binding("toArrow", "relationship", convertToArrow))
+      );
+
+    // setup a few example class nodes and relationships
+    var nodedata = [
+      {
+        key: 1,
+        name: "BankAccount",
+        properties: [
+          { name: "testing1234", type: "String", visibility: "public" },
+          { name: "balance", type: "Currency", visibility: "public", default: "0" }
+        ],
+        methods: [
+          { name: "deposit", parameters: [{ name: "amount", type: "Currency" }], visibility: "public" },
+          { name: "withdraw", parameters: [{ name: "amount", type: "Currency" }], visibility: "public" }
+        ]
+      },
+      {
+        key: 11,
+        name: "Person",
+        properties: [
+          { name: "name", type: "String", visibility: "public" },
+          { name: "birth", type: "Date", visibility: "protected" }
+        ],
+        methods: [
+          { name: "getCurrentAge", type: "int", visibility: "public" }
+        ]
+      },
+      {
+        key: 12,
+        name: "Student",
+        properties: [
+          { name: "classes", type: "List<Course>", visibility: "public" }
+        ],
+        methods: [
+          { name: "attend", parameters: [{ name: "class", type: "Course" }], visibility: "private" },
+          { name: "sleep", visibility: "private" }
+        ]
+      },
+      {
+        key: 13,
+        name: "Professor",
+        properties: [
+          { name: "classes", type: "List<Course>", visibility: "public" }
+        ],
+        methods: [
+          { name: "teach", parameters: [{ name: "class", type: "Course" }], visibility: "private" }
+        ]
+      },
+      {
+        key: 14,
+        name: "Course",
+        properties: [
+          { name: "name", type: "String", visibility: "public" },
+          { name: "description", type: "String", visibility: "public" },
+          { name: "professor", type: "Professor", visibility: "public" },
+          { name: "location", type: "String", visibility: "public" },
+          { name: "times", type: "List<Time>", visibility: "public" },
+          { name: "prerequisites", type: "List<Course>", visibility: "public" },
+          { name: "students", type: "List<Student>", visibility: "public" }
+        ]
+      }
+    ];
+    var linkdata = [
+      { from: 12, to: 11, relationship: "generalization" },
+      { from: 13, to: 11, relationship: "generalization" },
+      { from: 14, to: 13, relationship: "aggregation" }
+    ];
+    myDiagram.model = $(go.GraphLinksModel,
+      {
+        copiesArrays: true,
+        copiesArrayObjects: true,
+        nodeDataArray: nodedata,
+        linkDataArray: linkdata
+      });
+  }
