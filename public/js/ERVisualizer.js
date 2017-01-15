@@ -5,17 +5,13 @@ function init() {
     myDiagram =
       $(go.Diagram, "myDiagramDiv",
         {
+		"toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
           initialContentAlignment: go.Spot.Center,
+		  initialDocumentSpot: go.Spot.TopCenter,
           "undoManager.isEnabled": true,
-          layout: $(go.TreeLayout,
-                    { // this only lays out in trees nodes connected by "generalization" links
-                      angle: 90,
-                      path: go.TreeLayout.PathSource,  // links go from child to parent
-                      setsPortSpot: false,  // keep Spot.AllSides for link connection spot
-                      setsChildPortSpot: false,  // keep Spot.AllSides
-                      // nodes not connected by "generalization" links are laid out horizontally
-                      arrangement: go.TreeLayout.ArrangementHorizontal
-                    })
+		  initialViewportSpot: go.Spot.Center,
+		  initialAutoScale: go.Diagram.Uniform,
+          layout: $(go.GridLayout)
         });
 
     // show visibility or access as a single character at the beginning of each property or method
@@ -137,6 +133,7 @@ function init() {
             new go.Binding("visible", "methods", function(arr) { return arr.length > 0; }))
         )
       );
+	  
 
     function convertIsTreeLink(r) {
       return r === "generalization";
@@ -168,71 +165,6 @@ function init() {
           new go.Binding("toArrow", "relationship", convertToArrow))
       );
 
-    // setup a few example class nodes and relationships
-    // var nodedata = [
-    //   {
-    //     key: 1,
-    //     name: "BankAccount",
-    //     properties: [
-    //       { name: "testing1234", type: "String", visibility: "public" },
-    //       { name: "balance", type: "Currency", visibility: "public", default: "0" }
-    //     ],
-    //     methods: [
-    //       { name: "deposit", parameters: [{ name: "amount", type: "Currency" }], visibility: "public" },
-    //       { name: "withdraw", parameters: [{ name: "amount", type: "Currency" }], visibility: "public" }
-    //     ]
-    //   },
-    //   {
-    //     key: 11,
-    //     name: "Person",
-    //     properties: [
-    //       { name: "name", type: "String", visibility: "public" },
-    //       { name: "birth", type: "Date", visibility: "protected" }
-    //     ],
-    //     methods: [
-    //       { name: "getCurrentAge", type: "int", visibility: "public" }
-    //     ]
-    //   },
-    //   {
-    //     key: 12,
-    //     name: "Student",
-    //     properties: [
-    //       { name: "classes", type: "List<Course>", visibility: "public" }
-    //     ],
-    //     methods: [
-    //       { name: "attend", parameters: [{ name: "class", type: "Course" }], visibility: "private" },
-    //       { name: "sleep", visibility: "private" }
-    //     ]
-    //   },
-    //   {
-    //     key: 13,
-    //     name: "Professor",
-    //     properties: [
-    //       { name: "classes", type: "List<Course>", visibility: "public" }
-    //     ],
-    //     methods: [
-    //       { name: "teach", parameters: [{ name: "class", type: "Course" }], visibility: "private" }
-    //     ]
-    //   },
-    //   {
-    //     key: 14,
-    //     name: "Course",
-    //     properties: [
-    //       { name: "name", type: "String", visibility: "public" },
-    //       { name: "description", type: "String", visibility: "public" },
-    //       { name: "professor", type: "Professor", visibility: "public" },
-    //       { name: "location", type: "String", visibility: "public" },
-    //       { name: "times", type: "List<Time>", visibility: "public" },
-    //       { name: "prerequisites", type: "List<Course>", visibility: "public" },
-    //       { name: "students", type: "List<Student>", visibility: "public" }
-    //     ]
-    //   }
-    // ];
-    // var linkdata = [
-    //   { from: 12, to: 11, relationship: "generalization" },
-    //   { from: 13, to: 11, relationship: "generalization" },
-    //   { from: 14, to: 13, relationship: "aggregation" }
-    // ];
     var xmlHttp_tabledata = new XMLHttpRequest();
     xmlHttp_tabledata.onreadystatechange = function() { 
         if (xmlHttp_tabledata.readyState == 4 && xmlHttp_tabledata.status == 200)
@@ -251,3 +183,15 @@ function init() {
     xmlHttp_tabledata.send(null);
     
   }
+  
+   function exportImage(){
+		var img = myDiagram.makeImage({
+			background: "rgba(255,255, 255, 255)",
+			scale:1
+		});  
+		var a  = document.createElement('a');
+		a.href = img.src;
+		console.log(img.src);
+		a.download = 'ERScreenShot.png';
+		a.click();
+	}
