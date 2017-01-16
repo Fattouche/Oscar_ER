@@ -8,7 +8,7 @@ var databasename = "northwind";
 var connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
-  password : '', //User Beware, change this to your mysql server's password
+  password : 'password', //note, must change this to be your mysql server's password
   database : databasename
 });
 

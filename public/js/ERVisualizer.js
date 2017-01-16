@@ -13,6 +13,8 @@ function init() {
 		  initialAutoScale: go.Diagram.Uniform,
           layout: $(go.GridLayout)
         });
+		
+	myDiagram.nodeTemplateMap = new go.Map("string", go.Node);
 
     // show visibility or access as a single character at the beginning of each property or method
     function convertVisibility(v) {
@@ -81,10 +83,9 @@ function init() {
           new go.Binding("text", "type").makeTwoWay())
       );
 
-    // this simple template does not have any buttons to permit adding or
-    // removing properties or methods, but it could!
-    myDiagram.nodeTemplate =
-      $(go.Node, "Auto",
+	var entityNodeCategory = "entity";	
+    myDiagram.nodeTemplateMap.add(entityNodeCategory, 
+      $(go.Node, "Auto", new go.Binding("visible", "entityVisibility"),
         {
           locationSpot: go.Spot.Center,
           fromSpot: go.Spot.AllSides,
@@ -132,7 +133,8 @@ function init() {
             { row: 2, column: 1, alignment: go.Spot.TopRight, visible: false },
             new go.Binding("visible", "methods", function(arr) { return arr.length > 0; }))
         )
-      );
+      )
+	);
 	  
 
     function convertIsTreeLink(r) {
@@ -165,11 +167,16 @@ function init() {
           new go.Binding("toArrow", "relationship", convertToArrow))
       );
 
+	var entities = {};
     var xmlHttp_tabledata = new XMLHttpRequest();
     xmlHttp_tabledata.onreadystatechange = function() { 
-        if (xmlHttp_tabledata.readyState == 4 && xmlHttp_tabledata.status == 200)
+        if (xmlHttp_tabledata.readyState == 4 && xmlHttp_tabledata.status == 200) {
             data = JSON.parse(xmlHttp_tabledata.responseText);
             var nodedata = data.tables;
+			for (var i in nodedata) {
+				entities[nodedata[i]["name"]] = nodedata[i]["key"];				
+				nodedata[i]["category"] = entityNodeCategory;
+			}
             var linkdata = data.links;
             myDiagram.model = $(go.GraphLinksModel,
               {
@@ -178,10 +185,48 @@ function init() {
                 nodeDataArray: nodedata,
                 linkDataArray: linkdata
               });
+			  
+			
+			// create checkboxes
+			var div = document.getElementById("sample");
+			var content = document.createTextNode("TEST TEST TEST TEST TEST TEST");
+			var nodeDataArray = myDiagram.model.nodeDataArray;
+			for (var i in nodeDataArray) {
+				if (nodeDataArray[i] != undefined) {
+					var checkbox = document.createElement('input');
+					checkbox.type = 'checkbox';
+					checkbox.name = nodeDataArray[i]["name"];
+					checkbox.onclick = function(cb) {
+						if (this.checked) {
+							console.log("on");
+							setVisibility(this.name, false);
+						} else {
+							console.log("off");
+							setVisibility(this.name, true);
+						}
+					}
+					
+					var label = document.createElement('label')
+					label.htmlFor = "id";
+					label.appendChild(document.createTextNode(checkbox.name));
+					
+					div.insertBefore(checkbox, document.getElementById('disclaimer'));
+					div.insertBefore(label, document.getElementById('disclaimer'));
+				}
+			};
+		}
     }
     xmlHttp_tabledata.open("GET", "/tabledata", true); // true for asynchronous 
     xmlHttp_tabledata.send(null);
     
+	function setVisibility(entityName, isSelected) {
+		var entityKey = entities[entityName];
+		console.log("hi " + entityName + " " + entityKey);
+		myDiagram.model.startTransaction("change_entity_visibility");
+		var data = myDiagram.model.findNodeDataForKey(entityKey);
+		if (data != null) myDiagram.model.setDataProperty(data, "entityVisibility", isSelected);
+		myDiagram.model.commitTransaction("change_entity_visibility");
+	}
   }
   
    function exportImage(){
