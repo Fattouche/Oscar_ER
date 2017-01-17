@@ -9,26 +9,35 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gojs/1.6.7/go-debug.js"></script>
 <script src="js/ERVisualizer.js"></script>
 </head>
+
 <body onload="init()"/>
+
+<div><ul id="navbar">
+	<li id = "teamName">TALSPALS</li>
+	<li id = "navTitle">Data Visualization</li>
+</ul></div>
+
 <div id="sample">
-  <h2>GoJS Entity Relationship</h2>
-  <div id="myDiagramDiv" style="background-color: white; border: solid 1px black; width: 100%; height: 700px"></div>
+
+  	<div id = "leftColumn">
+		<button type="button" class="myButton" onclick="showAll()">Show All Entities</button>
+		<button type="button" class="myButton" onclick="hideAll()">Hide All Entities</button>
+		<button type="button" class="myButton" onclick="exportImage()">Export Image</button>
+		<select onchange="ChangeLayout()" id="layout" class="myButton">
+		  <option value="grid" selected>Grid Layout</option>
+		  <option value="force-directed">Force-directed Layout</option>
+		  <option value="circular">Circular Layout</option>
+		  <option value="layered-digraph">Layered Digraph Layout</option>
+		  <option value="tree">Tree Layout</option>
+		</select>
+		<h3>Entities Not Displayed <br>(Check box to display)</h3>
+	 	<div id ="entityList"></div>
+	</div>
   
-  <h3>Entities Not Displayed (Check box to display)</h3>
-  <div id ="entityList"></div>
- 
-  <p id="disclaimer">Created by: Tal's Pals</p>
+  	<div id = "rightColumn">
+  		<div id="myDiagramDiv" style="background-color: white; border: solid 1px black; width: 100%; height: 700px"></div>
+  	</div>
+  
 </div>
 
-<select onchange="ChangeLayout()" id="layout" class="myButton">
-  <option value="grid" selected>grid layout</option>
-  <option value="force-directed">force-directed layout</option>
-  <option value="circular">circular layout</option>
-  <option value="layered-digraph">layered digraph layout</option>
-  <option value="tree">tree layout</option>
-</select>
-
-<button type="button" class="myButton" onclick="showAll()">Show All Entities</button>
-<button type="button" class="myButton" onclick="hideAll()">Hide All Entities</button>
-<button type="button" class="myButton" onclick="exportImage()">Export Image</button>
 </html>
