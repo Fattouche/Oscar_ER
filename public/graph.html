@@ -19,6 +19,15 @@
  
   <p id="disclaimer">Created by: Tal's Pals</p>
 </div>
+
+<select onchange="ChangeLayout()" id="layout" class="myButton">
+  <option value="grid" selected>grid layout</option>
+  <option value="force-directed">force-directed layout</option>
+  <option value="circular">circular layout</option>
+  <option value="layered-digraph">layered digraph layout</option>
+  <option value="tree">tree layout</option>
+</select>
+
 <button type="button" class="myButton" onclick="showAll()">Show All Entities</button>
 <button type="button" class="myButton" onclick="hideAll()">Hide All Entities</button>
 <button type="button" class="myButton" onclick="exportImage()">Export Image</button>

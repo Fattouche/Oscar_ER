@@ -94,6 +94,17 @@ function init() {
           fromSpot: go.Spot.AllSides,
           toSpot: go.Spot.AllSides
         },
+		{
+        contextMenu:     // define a context menu for each node
+          $(go.Adornment, "Vertical",  // that has one button
+            $("ContextMenuButton",
+              $(go.TextBlock, "hide"),
+              {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand}),
+			$("ContextMenuButton",
+              $(go.TextBlock, "expand"),
+              {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand})
+          )  
+		},
         $(go.Shape, { fill: "lightyellow" }),
         $(go.Panel, "Table",
           { defaultRowSeparatorStroke: "black" },
@@ -280,4 +291,36 @@ function setVisibility(entityName, isSelected) {
         div.appendChild(checkbox);
         div.appendChild(label);
   }
+}
+
+function cmCommand(e, obj){
+	var node = obj.part.adornedPart;
+	var button = obj.elt(1);
+	if(button.text=="hide"){
+		setVisibility(node.data.name, false);
+	}else if(button.text=="expand"){
+		//expand in here Cailan
+	}
+}
+
+function ChangeLayout(){
+	 var layout = document.getElementById("layout").value;
+	 myDiagram.startTransaction("Change Layout");
+	 switch(layout){
+		case "force-directed":
+			myDiagram.layout = new go.ForceDirectedLayout();
+			break;
+		case "circular": 
+			myDiagram.layout = new go.CircularLayout();
+			break;
+		case "tree":
+			myDiagram.layout = new go.TreeLayout();
+			break;
+		case "layered-digraph":
+			myDiagram.layout = new go.LayeredDigraphLayout();
+			break;
+		default:
+			myDiagram.layout = new go.GridLayout();
+	 }
+	 myDiagram.commitTransaction("Change Layout");
 }
