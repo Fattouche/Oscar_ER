@@ -1,87 +1,90 @@
+var entities = {};
+var myDiagram;
+
 function init() {
-    if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
+  if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
     var $ = go.GraphObject.make;
 
-    myDiagram =
-      $(go.Diagram, "myDiagramDiv",
-        {
-		"toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
-          initialContentAlignment: go.Spot.Center,
-		  initialDocumentSpot: go.Spot.TopCenter,
-          "undoManager.isEnabled": true,
-		  initialViewportSpot: go.Spot.Center,
-		  initialAutoScale: go.Diagram.Uniform,
-          layout: $(go.GridLayout)
-        });
-		
-	myDiagram.nodeTemplateMap = new go.Map("string", go.Node);
+  myDiagram =
+    $(go.Diagram, "myDiagramDiv",
+      {
+	"toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
+        initialContentAlignment: go.Spot.Center,
+	  initialDocumentSpot: go.Spot.TopCenter,
+        "undoManager.isEnabled": true,
+	  initialViewportSpot: go.Spot.Center,
+	  initialAutoScale: go.Diagram.Uniform,
+        layout: $(go.GridLayout)
+      });
+  		
+  myDiagram.nodeTemplateMap = new go.Map("string", go.Node);
 
-    // show visibility or access as a single character at the beginning of each property or method
-    function convertVisibility(v) {
-      switch (v) {
-        case "public": return "+";
-        case "private": return "-";
-        case "protected": return "#";
-        case "package": return "~";
-        default: return v;
-      }
+  // show visibility or access as a single character at the beginning of each property or method
+  function convertVisibility(v) {
+    switch (v) {
+      case "public": return "+";
+      case "private": return "-";
+      case "protected": return "#";
+      case "package": return "~";
+      default: return v;
     }
+  }
 
-    // the item template for properties
-    var propertyTemplate =
-      $(go.Panel, "Horizontal",
-        // property visibility/access
-        $(go.TextBlock,
-          { isMultiline: false, editable: false, width: 12 },
-          new go.Binding("text", "visibility", convertVisibility)),
-        // property name, underlined if scope=="class" to indicate static property
-        $(go.TextBlock,
-          { isMultiline: false, editable: true },
-          new go.Binding("text", "name").makeTwoWay(),
-          new go.Binding("isUnderline", "scope", function(s) { return s[0] === 'c' })),
-        // property type, if known
-        $(go.TextBlock, "",
-          new go.Binding("text", "type", function(t) { return (t ? ": " : ""); })),
-        $(go.TextBlock,
-          { isMultiline: false, editable: true },
-          new go.Binding("text", "type").makeTwoWay()),
-        // property default value, if any
-        $(go.TextBlock,
-          { isMultiline: false, editable: false },
-          new go.Binding("text", "default", function(s) { return s ? " = " + s : ""; }))
-      );
+  // the item template for properties
+  var propertyTemplate =
+    $(go.Panel, "Horizontal",
+      // property visibility/access
+      $(go.TextBlock,
+        { isMultiline: false, editable: false, width: 12 },
+        new go.Binding("text", "visibility", convertVisibility)),
+      // property name, underlined if scope=="class" to indicate static property
+      $(go.TextBlock,
+        { isMultiline: false, editable: true },
+        new go.Binding("text", "name").makeTwoWay(),
+        new go.Binding("isUnderline", "scope", function(s) { return s[0] === 'c' })),
+      // property type, if known
+      $(go.TextBlock, "",
+        new go.Binding("text", "type", function(t) { return (t ? ": " : ""); })),
+      $(go.TextBlock,
+        { isMultiline: false, editable: true },
+        new go.Binding("text", "type").makeTwoWay()),
+      // property default value, if any
+      $(go.TextBlock,
+        { isMultiline: false, editable: false },
+        new go.Binding("text", "default", function(s) { return s ? " = " + s : ""; }))
+    );
 
-    // the item template for methods
-    var methodTemplate =
-      $(go.Panel, "Horizontal",
-        // method visibility/access
-        $(go.TextBlock,
-          { isMultiline: false, editable: false, width: 12 },
-          new go.Binding("text", "visibility", convertVisibility)),
-        // method name, underlined if scope=="class" to indicate static method
-        $(go.TextBlock,
-          { isMultiline: false, editable: true },
-          new go.Binding("text", "name").makeTwoWay(),
-          new go.Binding("isUnderline", "scope", function(s) { return s[0] === 'c' })),
-        // method parameters
-        $(go.TextBlock, "()",
-          // this does not permit adding/editing/removing of parameters via inplace edits
-          new go.Binding("text", "parameters", function(parr) {
-              var s = "(";
-              for (var i = 0; i < parr.length; i++) {
-                var param = parr[i];
-                if (i > 0) s += ", ";
-                s += param.name + ": " + param.type;
-              }
-              return s + ")";
-          })),
-        // method return type, if any
-        $(go.TextBlock, "",
-          new go.Binding("text", "type", function(t) { return (t ? ": " : ""); })),
-        $(go.TextBlock,
-          { isMultiline: false, editable: true },
-          new go.Binding("text", "type").makeTwoWay())
-      );
+  // the item template for methods
+  var methodTemplate =
+    $(go.Panel, "Horizontal",
+      // method visibility/access
+      $(go.TextBlock,
+        { isMultiline: false, editable: false, width: 12 },
+        new go.Binding("text", "visibility", convertVisibility)),
+      // method name, underlined if scope=="class" to indicate static method
+      $(go.TextBlock,
+        { isMultiline: false, editable: true },
+        new go.Binding("text", "name").makeTwoWay(),
+        new go.Binding("isUnderline", "scope", function(s) { return s[0] === 'c' })),
+      // method parameters
+      $(go.TextBlock, "()",
+        // this does not permit adding/editing/removing of parameters via inplace edits
+        new go.Binding("text", "parameters", function(parr) {
+            var s = "(";
+            for (var i = 0; i < parr.length; i++) {
+              var param = parr[i];
+              if (i > 0) s += ", ";
+              s += param.name + ": " + param.type;
+            }
+            return s + ")";
+        })),
+      // method return type, if any
+      $(go.TextBlock, "",
+        new go.Binding("text", "type", function(t) { return (t ? ": " : ""); })),
+      $(go.TextBlock,
+        { isMultiline: false, editable: true },
+        new go.Binding("text", "type").makeTwoWay())
+    );
 
 	var entityNodeCategory = "entity";	
     myDiagram.nodeTemplateMap.add(entityNodeCategory, 
@@ -135,42 +138,42 @@ function init() {
         )
       )
 	);
-	  
+  	  
 
-    function convertIsTreeLink(r) {
-      return r === "generalization";
+  function convertIsTreeLink(r) {
+    return r === "generalization";
+  }
+
+  function convertFromArrow(r) {
+    switch (r) {
+      case "generalization": return "";
+      default: return "";
     }
+  }
 
-    function convertFromArrow(r) {
-      switch (r) {
-        case "generalization": return "";
-        default: return "";
-      }
+  function convertToArrow(r) {
+    switch (r) {
+      case "generalization": return "Triangle";
+      case "aggregation": return "StretchedDiamond";
+      default: return "";
     }
+  }
 
-    function convertToArrow(r) {
-      switch (r) {
-        case "generalization": return "Triangle";
-        case "aggregation": return "StretchedDiamond";
-        default: return "";
-      }
-    }
+  myDiagram.linkTemplate =
+    $(go.Link,
+      { routing: go.Link.Orthogonal },
+      new go.Binding("isLayoutPositioned", "relationship", convertIsTreeLink),
+      $(go.Shape),
+      $(go.Shape, { scale: 1.3, fill: "white" },
+        new go.Binding("fromArrow", "relationship", convertFromArrow)),
+      $(go.Shape, { scale: 1.3, fill: "white" },
+        new go.Binding("toArrow", "relationship", convertToArrow))
+    );
 
-    myDiagram.linkTemplate =
-      $(go.Link,
-        { routing: go.Link.Orthogonal },
-        new go.Binding("isLayoutPositioned", "relationship", convertIsTreeLink),
-        $(go.Shape),
-        $(go.Shape, { scale: 1.3, fill: "white" },
-          new go.Binding("fromArrow", "relationship", convertFromArrow)),
-        $(go.Shape, { scale: 1.3, fill: "white" },
-          new go.Binding("toArrow", "relationship", convertToArrow))
-      );
-
-	var entities = {};
+	
     var xmlHttp_tabledata = new XMLHttpRequest();
     xmlHttp_tabledata.onreadystatechange = function() { 
-        if (xmlHttp_tabledata.readyState == 4 && xmlHttp_tabledata.status == 200) {
+      if (xmlHttp_tabledata.readyState == 4 && xmlHttp_tabledata.status == 200) {
             data = JSON.parse(xmlHttp_tabledata.responseText);
             var nodedata = data.tables;
 			for (var i in nodedata) {
@@ -185,58 +188,96 @@ function init() {
                 nodeDataArray: nodedata,
                 linkDataArray: linkdata
               });
-			  
-			
-			// create checkboxes
-			var div = document.getElementById("sample");
-			var content = document.createTextNode("TEST TEST TEST TEST TEST TEST");
-			var nodeDataArray = myDiagram.model.nodeDataArray;
-			for (var i in nodeDataArray) {
-				if (nodeDataArray[i] != undefined) {
-					var checkbox = document.createElement('input');
-					checkbox.type = 'checkbox';
-					checkbox.name = nodeDataArray[i]["name"];
-					checkbox.onclick = function(cb) {
-						if (this.checked) {
-							console.log("on");
-							setVisibility(this.name, false);
-						} else {
-							console.log("off");
-							setVisibility(this.name, true);
-						}
-					}
-					
-					var label = document.createElement('label')
-					label.htmlFor = "id";
-					label.appendChild(document.createTextNode(checkbox.name));
-					
-					div.insertBefore(checkbox, document.getElementById('disclaimer'));
-					div.insertBefore(label, document.getElementById('disclaimer'));
-				}
-			};
-		}
+  			  
+  			
+  			//Give all checkboxes a visibility property
+  			var div = document.getElementById("sample");
+  			var content = document.createTextNode("TEST TEST TEST TEST TEST TEST");
+  			var nodeDataArray = myDiagram.model.nodeDataArray;
+  			for (var i in nodeDataArray) {
+
+          var data = myDiagram.model.findNodeDataForKey(entities[nodeDataArray[i]["name"]]);
+   
+  				if (nodeDataArray[i] != undefined) {
+            setVisibility(nodeDataArray[i]["name"], true);
+  				}
+  			};
+  	  }
     }
-    xmlHttp_tabledata.open("GET", "/tabledata", true); // true for asynchronous 
-    xmlHttp_tabledata.send(null);
-    
-	function setVisibility(entityName, isSelected) {
-		var entityKey = entities[entityName];
-		console.log("hi " + entityName + " " + entityKey);
-		myDiagram.model.startTransaction("change_entity_visibility");
-		var data = myDiagram.model.findNodeDataForKey(entityKey);
-		if (data != null) myDiagram.model.setDataProperty(data, "entityVisibility", isSelected);
-		myDiagram.model.commitTransaction("change_entity_visibility");
-	}
-  }
   
-   function exportImage(){
-		var img = myDiagram.makeImage({
-			background: "rgba(255,255, 255, 255)",
-			scale:1
-		});  
-		var a  = document.createElement('a');
-		a.href = img.src;
-		console.log(img.src);
-		a.download = 'ERScreenShot.png';
-		a.click();
-	}
+  xmlHttp_tabledata.open("GET", "/tabledata", true); // true for asynchronous 
+  xmlHttp_tabledata.send(null);
+      
+
+
+}//end init
+  
+function exportImage(){
+	var img = myDiagram.makeImage({
+		background: "rgba(255,255, 255, 255)",
+		scale:1
+	});  
+	var a  = document.createElement('a');
+	a.href = img.src;
+	console.log(img.src);
+	a.download = 'ERScreenShot.png';
+	a.click();
+}
+
+//hide all entities
+function hideAll(){
+  var nodeDataArray = myDiagram.model.nodeDataArray;
+  document.getElementById('entityList').innerHTML = "";
+  for (var i in nodeDataArray) {
+    //console.log(nodeDataArray[i]["name"]);
+    if (nodeDataArray[i] != undefined) {
+      setVisibility(nodeDataArray[i]["name"], false);
+    }
+  };
+}//end hideAll
+
+//show all entities
+function showAll(){
+  var nodeDataArray = myDiagram.model.nodeDataArray;
+  document.getElementById('entityList').innerHTML = "";
+  for (var i in nodeDataArray) {
+    //console.log(nodeDataArray[i]["name"]);
+    if (nodeDataArray[i] != undefined) {
+      setVisibility(nodeDataArray[i]["name"], true);
+    }
+  };
+}//end showAll
+
+//sets visibility
+function setVisibility(entityName, isSelected) {
+  var entityKey = entities[entityName];
+  console.log("hi " + entityName + " " + entityKey);
+  myDiagram.model.startTransaction("change_entity_visibility");
+  var data = myDiagram.model.findNodeDataForKey(entityKey);
+  if (data != null) 
+    myDiagram.model.setDataProperty(data, "entityVisibility", isSelected);
+  myDiagram.model.commitTransaction("change_entity_visibility");
+
+  //if element is not visible, create a checkbox 
+  if(isSelected == false){
+      console.log("hidden")
+      var checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.name = entityName;
+        checkbox.onclick = function(cb) {
+          if (this.checked) {
+            console.log("on");
+            setVisibility(this.name, true);
+            checkbox.parentNode.removeChild(checkbox);
+            label.parentNode.removeChild(label);
+          } 
+        }
+        var div = document.getElementById("entityList");
+        var label = document.createElement('label')
+        label.htmlFor = "id";
+        label.appendChild(document.createTextNode(checkbox.name));
+        
+        div.appendChild(checkbox);
+        div.appendChild(label);
+  }
+}
