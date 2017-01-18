@@ -44,14 +44,16 @@ pre {
 #rowDiagram, #rowButtons {
     display: inline-block;
     border: 1px solid white;
-
 }
+
 #rowButtons {
    width: 100%;
 }
+
 #rowDiagram {
- width: 1040px;
+ width: 1100px;
 }
+
 #bottomRow{
   display: inline-block;
   width:100%;
@@ -109,7 +111,6 @@ pre {
 }
 
 
-
 a { text-decoration: none; }
 li a { display: block; }
 a:hover { text-decoration: underline; }
@@ -146,6 +147,17 @@ select{
     padding: 10px;
 }
 
+input {
+    width: 150px;
+    height: 35px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: #FFF5C3 ;
+    resize: none;
+    margin:5px;
+}
+
 
 .wrapper {
     text-align: center;
@@ -170,9 +182,8 @@ select{
 }
 
 .myButton{
-   font: normal normal normal 15px courier new;
+   font: normal normal normal 12px courier new;
    padding: 14px 27px;
-   width: 210px;
    margin-bottom: 10px;
    margin-left: 10px;
 }
@@ -196,9 +207,9 @@ select{
     position: absolute;
     width:200px;
     height:100px;
-    top: 80px;
-    left: 40px;
-    background-color: aliceblue;
-    z-index: 300; /* make sure its in front */
-    border: solid 1px blue;
+    top: 0px;
+    left: 0px;
+    background-color: #d6e7e4;
+    z-index: 1000; /* make sure its in front */
+    border: solid 1px black;
 }
