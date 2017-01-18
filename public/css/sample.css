@@ -38,16 +38,21 @@ pre {
 }
 
 #leftColumn, #rightColumn {
+    display: inline-block;
     border: 1px solid white;
     float: left;
     min-height: 450px;
 }
-#leftColumn {
+#rightColumn {
      width: 250px;
      text-align:  center;
 }
-#rightColumn {
-     width: 900px;
+#leftColumn {
+     width: 950px;
+}
+#bottomRow{
+  display: inline-block;
+  width:100%;
 }
 
 #navbar {
@@ -141,12 +146,11 @@ select{
     text-align: center;
 }
 
-.myButton {
-    margin: 2px;
+.myButton, .entityButton {
+    margin-top: 6px;
     display: inline-block;
     text-align: center;
     vertical-align: middle;
-    padding: 14px 27px;
     border: 0px solid #ffffff;
     border-radius: 30px;
     background: #8dcdc1;
@@ -154,20 +158,27 @@ select{
     background: -moz-linear-gradient(top, #8dcdc1, #7c786a);
     background: linear-gradient(to bottom, #8dcdc1, #7c786a);
     text-shadow: #7c786a 0px 0px 2px;
-    font: normal normal normal 15px courier new;
     color: #ffffff;
     text-decoration: none;
-    width: 210px;
+    font-family: courier new;
+    
 }
-.myButton:hover {
-	    background: #a9f6e8;
+
+.myButton{
+   font: normal normal normal 15px courier new;
+   padding: 14px 27px;
+   width: 210px;
+}
+
+.myButton:hover, .entityButton:hover {
+	  background: #a9f6e8;
     background: -webkit-gradient(linear, left top, left bottom, from(#a9f6e8), to(#95907f));
     background: -moz-linear-gradient(top, #a9f6e8, #95907f);
     background: linear-gradient(to bottom, #a9f6e8, #95907f);
     color: #ffffff;
     text-decoration: none;
 }
-.myButton:active {
+.myButton:active, .entityButton:active {
 	    background: #557b74;
     background: -webkit-gradient(linear, left top, left bottom, from(#557b74), to(#7c786a));
     background: -moz-linear-gradient(top, #557b74, #7c786a);

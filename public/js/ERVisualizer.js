@@ -254,7 +254,7 @@ function setVisibility(entityName, isSelected) {
   //if element is not visible, create a checkbox 
   if(isSelected == false){
       var button = document.createElement('button');
-		button.className = "myButton";
+		    button.className = "entityButton";
         button.textContent = entityName;
         button.onclick = function(cb) {
             setVisibility(button.textContent, true);
