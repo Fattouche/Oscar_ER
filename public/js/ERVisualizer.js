@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
-var entities = {};
+
 var lister=[];
->>>>>>> Added clean new search and diagram map
 var myDiagram;
 
 function init() {
