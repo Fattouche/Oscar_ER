@@ -199,20 +199,6 @@ function init() {
                 nodeDataArray: nodedata,
                 linkDataArray: linkdata
               });
-  			  
-  			
-  			//Give all checkboxes a visibility property
-  			var div = document.getElementById("sample");
-  			var content = document.createTextNode("TEST TEST TEST TEST TEST TEST");
-  			var nodeDataArray = myDiagram.model.nodeDataArray;
-  			for (var i in nodeDataArray) {
-
-          var data = myDiagram.model.findNodeDataForKey(entities[nodeDataArray[i]["name"]]);
-   
-  				if (nodeDataArray[i] != undefined) {
-            setVisibility(nodeDataArray[i]["name"], true);
-  				}
-  			};
   	  }
     }
   
@@ -230,7 +216,6 @@ function exportImage(){
 	});  
 	var a  = document.createElement('a');
 	a.href = img.src;
-	console.log(img.src);
 	a.download = 'ERScreenShot.png';
 	a.click();
 }
@@ -240,7 +225,6 @@ function hideAll(){
   var nodeDataArray = myDiagram.model.nodeDataArray;
   document.getElementById('entityList').innerHTML = "";
   for (var i in nodeDataArray) {
-    //console.log(nodeDataArray[i]["name"]);
     if (nodeDataArray[i] != undefined) {
       setVisibility(nodeDataArray[i]["name"], false);
     }
@@ -252,7 +236,6 @@ function showAll(){
   var nodeDataArray = myDiagram.model.nodeDataArray;
   document.getElementById('entityList').innerHTML = "";
   for (var i in nodeDataArray) {
-    //console.log(nodeDataArray[i]["name"]);
     if (nodeDataArray[i] != undefined) {
       setVisibility(nodeDataArray[i]["name"], true);
     }
@@ -262,7 +245,6 @@ function showAll(){
 //sets visibility
 function setVisibility(entityName, isSelected) {
   var entityKey = entities[entityName];
-  console.log("hi " + entityName + " " + entityKey);
   myDiagram.model.startTransaction("change_entity_visibility");
   var data = myDiagram.model.findNodeDataForKey(entityKey);
   if (data != null) 
@@ -271,24 +253,20 @@ function setVisibility(entityName, isSelected) {
 
   //if element is not visible, create a checkbox 
   if(isSelected == false){
-      console.log("hidden")
-      var checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.name = entityName;
-        checkbox.onclick = function(cb) {
-          if (this.checked) {
-            console.log("on");
-            setVisibility(this.name, true);
-            checkbox.parentNode.removeChild(checkbox);
+      var button = document.createElement('button');
+		button.className = "myButton";
+        button.textContent = entityName;
+        button.onclick = function(cb) {
+            setVisibility(button.textContent, true);
+            button.parentNode.removeChild(button);
             label.parentNode.removeChild(label);
-          } 
-        }
+        } 
         var div = document.getElementById("entityList");
         var label = document.createElement('label')
         label.htmlFor = "id";
-        label.appendChild(document.createTextNode(checkbox.name));
+        label.appendChild(document.createTextNode(button.name));
         
-        div.appendChild(checkbox);
+        div.appendChild(button);
         div.appendChild(label);
   }
 }
