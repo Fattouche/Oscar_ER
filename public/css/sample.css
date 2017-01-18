@@ -24,6 +24,13 @@ p.warning {
 .diagramContainer {
   border : solid 1px blue;
 }
+.diagram{
+	background-color: white;
+	 border: solid 1px black;
+	 width: 100%; 
+	 height: 700px;
+}
+
 pre {
   font-size : 9pt;
 }
@@ -190,3 +197,14 @@ select{
     background: -moz-linear-gradient(top, #557b74, #7c786a);
     background: linear-gradient(to bottom, #557b74, #7c786a);
 }
+
+#myOverviewDiv {
+    position: absolute;
+    width:200px;
+    height:100px;
+    top: 80px;
+    left: 30px;
+    background-color: aliceblue;
+    z-index: 300; /* make sure its in front */
+    border: solid 1px blue;
+  }

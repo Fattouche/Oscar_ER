@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+var entities = {};
+var lister=[];
+>>>>>>> Added clean new search and diagram map
 var myDiagram;
 
 function init() {
@@ -93,6 +98,7 @@ function init() {
           fromSpot: go.Spot.AllSides,
           toSpot: go.Spot.AllSides
         },
+		 
 		{
         contextMenu:     // define a context menu for each node
           $(go.Adornment, "Vertical",  // that has one button
@@ -104,7 +110,8 @@ function init() {
               {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand})
           )  
 		},
-        $(go.Shape, { fill: "lightyellow" }),
+        $(go.Shape, { fill: "lightyellow" },
+		new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightyellow"; }).ofObject()),
         $(go.Panel, "Table",
           { defaultRowSeparatorStroke: "black" },
           // header
@@ -120,10 +127,11 @@ function init() {
             { row: 1, font: "italic 10pt sans-serif" },
             new go.Binding("visible", "visible", function(v) { return !v; }).ofObject("PROPERTIES")),
           $(go.Panel, "Vertical", { name: "PROPERTIES" },
+			new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightyellow"; }).ofObject(),
             new go.Binding("itemArray", "properties"),
             {
               row: 1, margin: 3, stretch: go.GraphObject.Fill,
-              defaultAlignment: go.Spot.Left, background: "lightyellow",
+              defaultAlignment: go.Spot.Left,
               itemTemplate: propertyTemplate
             }
           ),
@@ -186,7 +194,8 @@ function init() {
       if (xmlHttp_tabledata.readyState == 4 && xmlHttp_tabledata.status == 200) {
             data = JSON.parse(xmlHttp_tabledata.responseText);
             var nodedata = data.tables;
-			for (var i in nodedata) {		
+			for (var i in nodedata) {
+				lister.unshift(nodedata[i]["name"]);
 				nodedata[i]["category"] = entityNodeCategory;
 			}
             var linkdata = data.links;
@@ -202,6 +211,10 @@ function init() {
   
   xmlHttp_tabledata.open("GET", "/tabledata", true); // true for asynchronous 
   xmlHttp_tabledata.send(null);
+  
+  var myOverview =
+      $(go.Overview, "myOverviewDiv",  // the HTML DIV element for the Overview
+        { observed: myDiagram, contentAlignment: go.Spot.Center }); 
       
 
 
@@ -299,3 +312,25 @@ function ChangeLayout(){
 	 }
 	 myDiagram.commitTransaction("Change Layout");
 }
+
+function searchDiagram() {  // called by button
+    var input = document.getElementById("mySearch");
+    if (!input) return;
+    input.focus();
+
+    // create a case insensitive RegExp from what the user typed
+    var regex = new RegExp(input.value, "i");
+
+    myDiagram.startTransaction("highlight search");
+    myDiagram.clearHighlighteds();
+
+    // search four different data properties for the string, any of which may match for success
+    if (input.value) {  // empty string only clears highlighteds collection
+      var results = myDiagram.findNodesByExample({ name: regex });
+      myDiagram.highlightCollection(results);
+      // try to center the diagram at the first node that was found
+      if (results.count > 0) myDiagram.centerRect(results.first().actualBounds);
+    }
+
+    myDiagram.commitTransaction("highlight search");
+  }
