@@ -34,26 +34,26 @@ class Revenger{
 		self.tables = [];
 		self.links = [];
 		var db = this.db;
-		var key = 1;
-		db.query("USE "+this.databasename+";")
+		db.query("USE "+this.databasename+";");
 		db.query("SELECT table_name \
 				  FROM information_schema.tables \
 				  WHERE table_schema=\""+this.databasename+"\";", function(err, rows, fields) {
 		  if (!err){
 		  	var table_names = rows;
-			console.log(rows);
 
 			for (var i = 0; i < table_names.length; i++){
+				var name = table_names[i].table_name;
 				var new_table = {
-					key: key,
-					name: table_names[i].table_name,
-					properties: []
+					"key": name,
+					"name": name,
+					"properties": [],
+					"foreign_keys": []
 				}
+				self.getTableForeignKeys(new_table);
 				if (i == table_names.length-1) // last one
 					self.getTableProperties(new_table, res);
 				else
 					self.getTableProperties(new_table);
-				key++;
 			}
 		  }
 		  else{
@@ -61,6 +61,25 @@ class Revenger{
 			throw err;
 		  }
 		});
+	}
+	
+	getTableForeignKeys(new_table) {
+		var self = this;
+		this.db.query("USE "+this.databasename+";");
+		this.db.query("SELECT information_schema.REFERENTIAL_CONSTRAINTS.REFERENCED_TABLE_NAME \
+					   FROM information_schema.REFERENTIAL_CONSTRAINTS \
+					   WHERE information_schema.REFERENTIAL_CONSTRAINTS.TABLE_NAME = '" + new_table.name + "';",
+					   function(err, rows, fields) {
+							if (!err) {								
+								for (var i in rows) {
+									self.links.push({"from": new_table.name, "to": rows[i]["REFERENCED_TABLE_NAME"]});
+								}
+							} else {
+								console.log("error: " + err);
+								throw err;
+							}
+						}
+		);
 	}
 
 	getTableProperties(new_table, res){
@@ -78,7 +97,6 @@ class Revenger{
 												});
 					}
 					self.tables.push(new_table);
-					console.log(JSON.stringify(self.tables));
 					if (res)
 						res.send(null);
 				  }

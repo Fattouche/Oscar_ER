@@ -1,4 +1,3 @@
-var entities = {};
 var myDiagram;
 
 function init() {
@@ -187,8 +186,7 @@ function init() {
       if (xmlHttp_tabledata.readyState == 4 && xmlHttp_tabledata.status == 200) {
             data = JSON.parse(xmlHttp_tabledata.responseText);
             var nodedata = data.tables;
-			for (var i in nodedata) {
-				entities[nodedata[i]["name"]] = nodedata[i]["key"];				
+			for (var i in nodedata) {		
 				nodedata[i]["category"] = entityNodeCategory;
 			}
             var linkdata = data.links;
@@ -244,9 +242,8 @@ function showAll(){
 
 //sets visibility
 function setVisibility(entityName, isSelected) {
-  var entityKey = entities[entityName];
   myDiagram.model.startTransaction("change_entity_visibility");
-  var data = myDiagram.model.findNodeDataForKey(entityKey);
+  var data = myDiagram.model.findNodeDataForKey(entityName);
   if (data != null) 
     myDiagram.model.setDataProperty(data, "entityVisibility", isSelected);
   myDiagram.model.commitTransaction("change_entity_visibility");
