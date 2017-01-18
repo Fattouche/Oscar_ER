@@ -34,21 +34,22 @@ pre {
 }
 
 #sample {
-  margin: 20px;
+  margin-left: 30px;
+  margin-right: 30px;
+  margin-top:20px;
+  text-align: center;
 }
 
-#leftColumn, #rightColumn {
+#rowDiagram, #rowButtons {
     display: inline-block;
     border: 1px solid white;
-    float: left;
-    min-height: 450px;
+
 }
-#rightColumn {
-     width: 250px;
-     text-align:  center;
+#rowButtons {
+   width: 100%;
 }
-#leftColumn {
-     width: 950px;
+#rowDiagram {
+ width: 1040px;
 }
 #bottomRow{
   display: inline-block;
@@ -133,12 +134,15 @@ li a.selected { background: #1E90FF; color: white }
 a:hover .samplespan { display:block; }
 
 h3{
-  font: 15px courier new;
-  font-weight: bold;
+  font: 18px impact;
+  color: #7C786A;
 }
 
 select{
-  padding: 10px;
+   -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding: 10px;
 }
 
 
@@ -147,7 +151,7 @@ select{
 }
 
 .myButton, .entityButton {
-    margin-top: 6px;
+    margin: 2px;
     display: inline-block;
     text-align: center;
     vertical-align: middle;
@@ -168,6 +172,8 @@ select{
    font: normal normal normal 15px courier new;
    padding: 14px 27px;
    width: 210px;
+   margin-bottom: 10px;
+   margin-left: 10px;
 }
 
 .myButton:hover, .entityButton:hover {
