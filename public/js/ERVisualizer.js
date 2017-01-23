@@ -176,13 +176,7 @@ function init() {
 
   myDiagram.linkTemplate =
     $(go.Link,
-      { routing: go.Link.Orthogonal },
-      new go.Binding("isLayoutPositioned", "relationship", convertIsTreeLink),
-      $(go.Shape),
-      $(go.Shape, { scale: 1.3, fill: "white" },
-        new go.Binding("fromArrow", "relationship", convertFromArrow)),
-      $(go.Shape, { scale: 1.3, fill: "white" },
-        new go.Binding("toArrow", "relationship", convertToArrow))
+      $(go.Shape)
     );
 
 	
