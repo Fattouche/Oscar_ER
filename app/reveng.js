@@ -1,9 +1,15 @@
 "use strict"
 class Revenger{
 
-	constructor(db, databasename){
-		this.db = db;
-		this.databasename = databasename;
+	constructor(mysql, host, port, user, password, database){
+		this.db = mysql.createConnection({
+		  host     : host,
+		  port     : port,
+		  user     : user,
+		  password : password, //note, must change this to be your mysql server's password
+		  database : database
+		});
+		this.databasename = database;
 		this.tables = [];
 		this.links = [];
   // 	table type:
@@ -33,9 +39,8 @@ class Revenger{
 		var self = this;
 		self.tables = [];
 		self.links = [];
-		var db = this.db;
-		db.query("USE "+this.databasename+";");
-		db.query("SELECT table_name \
+		this.db.query("USE "+this.databasename+";");
+		this.db.query("SELECT table_name \
 				  FROM information_schema.tables \
 				  WHERE table_schema=\""+this.databasename+"\";", function(err, rows, fields) {
 		  if (!err){

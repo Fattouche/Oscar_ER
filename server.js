@@ -4,28 +4,19 @@ var express    = require("express");
 var bodyParser = require("body-parser");
 var reveng     = require("./app/reveng")
 
-var databasename = "northwind";
-var connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'root',
-  password : 'password', //note, must change this to be your mysql server's password
-  database : databasename
-});
-
-var Revenger = new reveng.Revenger(connection, databasename);
+var Revenger = null;
 
 var app = express();
 app.use(bodyParser.json());
 
 app.use(express.static('public'));
 
-
-
 app.get('/', function(req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 
-app.get('/start', function(req, res) {
+app.post('/start', function(req, res) {
+	Revenger = new reveng.Revenger(mysql, req.body.host, req.body.port, req.body.user, req.body.password, req.body.database);
 	Revenger.getTableSchema(res);
 });
 
