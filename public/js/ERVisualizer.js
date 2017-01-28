@@ -282,7 +282,14 @@ function cmCommand(e, obj){
 	if(button.text=="hide"){
 		setVisibility(node.data.name, false);
 	}else if(button.text=="expand"){
-		//expand in here Cailan
+		for (var i in node.data.incoming_links)
+		{
+			setVisibility(node.data.incoming_links[i], true);
+		}
+		for (var i in node.data.outgoing_links)
+		{
+			setVisibility(node.data.outgoing_links[i], true);
+		}
 	}
 }
 
