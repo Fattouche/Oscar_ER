@@ -213,3 +213,123 @@ input {
     z-index: 1000; /* make sure its in front */
     border: solid 1px black;
 }
+
+
+/*table CSS*/
+#projectTable{
+  text-align: left;
+  margin: auto;
+
+}
+.datagrid table { 
+  border-collapse: collapse; 
+  text-align: left; 
+  width: 100%; 
+} 
+
+.datagrid {
+  font: normal 12px/150% Courier New, Courier, monospace; 
+  background: #fff; 
+  overflow: hidden; 
+  border: 1px solid #7C786A; 
+  -webkit-border-radius: 4px; 
+  -moz-border-radius: 4px; 
+  border-radius: 4px; 
+}
+
+.datagrid td, .datagrid table th { 
+  padding: 0px 0px; 
+}
+
+.datagrid thead th {
+  background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #C9C9C9), color-stop(1, #7C786A) );
+  background:-moz-linear-gradient( center top, #C9C9C9 5%, #7C786A 100% );
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#C9C9C9', endColorstr='#7C786A');
+  background-color:#C9C9C9; 
+  color:#FFFFFF; 
+  font-size: 12px; 
+  font-weight: lighter; 
+  border-left: 0px solid #A3A3A3; 
+  padding-left: 5px;
+  padding: 8px;
+} 
+
+.datagrid  thead th:first-child { 
+  border: none; 
+}
+
+.datagrid tbody td { 
+  color: #7C786A; 
+  border-left: 0px solid #DBDBDB;
+  font-size: 12px;
+  font-weight: normal; 
+  padding-left: 5px;
+}
+
+.datagrid tbody .alt td { 
+  background: #EBEBEB; 
+  color: #7D7D7D; 
+}
+
+.datagrid tbody td:first-child { 
+  border-left: none; 
+}
+
+.datagrid tbody tr:last-child td { 
+  border-bottom: none; 
+}
+
+
+div.dhtmlx_window_active, div.dhx_modal_cover_dv { 
+  position: fixed !important; 
+}
+
+
+/*index.html columns*/
+#left, #right {
+    border: 1px solid white;
+    float: left;
+    min-height: 450px;
+    color: white;
+}
+#left {
+     width: 29%;
+     background-color: #d6e7e4;
+     border-radius: 12px;
+     margin: 15px;
+     padding: 15px;
+     clear: both;
+}
+#right {
+     width: 60%;
+     background-color: #EBEBEB;
+     border-radius: 12px;
+     margin: 15px;
+     padding: 15px;
+}
+
+label {
+  font: normal normal normal 12px courier new;
+  color: #000000;
+  float: left;
+  margin-top: 4%;
+  width: 40%;
+  clear: both;
+
+}
+
+#left input{
+  width: 50%;
+  clear: both;
+}
+
+#newProj{
+   color: #7C786A;
+  font-size: 18px;
+  font-family: impact;
+  padding: 10px;
+  margin: 10px;
+}
+#right #newProj{
+  /*float:left;*/
+}

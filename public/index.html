@@ -4,12 +4,46 @@
 <link rel="stylesheet" type="text/css" href="css/sample.css">
 <title>SENG371: Milestone 1</title>
 <script src="js/start_app.js"></script>
+<script src="js/project.js"></script>
 </head>
+
+<body onload="project_init()"/ >
+
 <div><ul id="navbar">
-		<li id = "teamName">TALSPALS</li>
+		<li id = "teamName" onclick="window.location.href='index.html'" onmouseover="" style="cursor: pointer;">TALSPALS</li>
 		<li id = "navTitle">Data Visualization</li>
 	</ul></div>
 <div class="wrapper">
-	<button id="startbutton" class="myButton" type="button" onclick="start()" style="margin:20px;">Start!</button>
+	<div id = "left">
+		<h2 id = "newProj">Create New Project</h2>
+		<form>
+		<div><label>Name:</label><input id = "newProjName"/></div>
+		<div><label>Host:</label><input id = "newProjHost"/></div>
+		<div><label>User:</label><input id = "newProjUser"/></div>
+		<div><label>Password:</label><input id = "newProjPass"/></div>
+		<div><label>Database:</label><input id = "newProjData"/></div>
+		<div><label>Port:</label><input id = "newProjPort"/></div>
+		</form>
+
+		<button id="createbutton" class="myButton" type="button" onclick="createProject()" style="margin:20px;">Create Project</button>
+	</div>
+
+	<div id = "right">
+		<h2 id = "newProj">Existing Projects</h2>
+		<table id = "projectTable" class = "datagrid">
+			<thead>
+			<tr>
+			    <th width="100px">Select</th>
+			    <th width="500px">Project</th> 
+		  	</tr>
+		  	</thead>
+		  	<tbody id = "tablebody">
+		  	</tbody>
+		</table>
+		<button id="startbutton" class="myButton" type="button" onclick="start()" style="margin:20px;">Start!</button>
+		<button id="deletebutton" class="myButton" type="button" onclick="deleteProject()" style="margin:20px;">Delete</button>
+
+		
+	</div>
 </div>
 </html>
