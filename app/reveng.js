@@ -6,12 +6,12 @@ class Revenger{
 		  host     : host,
 		  port     : port,
 		  user     : user,
-		  password : password, //note, must change this to be your mysql server's password
+		  password : password,
 		  database : database
 		});
 		this.databasename = database;
-		this.tables = [];
 		this.links = [];
+		this.tables = {};
   // 	table type:
   // 	{
   //       key: 14,
@@ -37,7 +37,7 @@ class Revenger{
 
 	getTableSchema(res){
 		var self = this;
-		self.tables = [];
+		self.tables = {};
 		self.links = [];
 		this.db.query("USE "+this.databasename+";");
 		this.db.query("SELECT table_name \
@@ -48,13 +48,17 @@ class Revenger{
 
 			for (var i = 0; i < table_names.length; i++){
 				var name = table_names[i].table_name;
+				console.log("********************");
+				console.log(name);
+				console.log("********************");
 				var new_table = {
 					"key": name,
 					"name": name,
 					"properties": [],
-					"foreign_keys": []
+					"foreign_keys": [],
+					"outgoing_links": [],
+					"incoming_links": []
 				}
-				self.getTableForeignKeys(new_table);
 				if (i == table_names.length-1) // last one
 					self.getTableProperties(new_table, res);
 				else
@@ -68,17 +72,27 @@ class Revenger{
 		});
 	}
 	
-	getTableForeignKeys(new_table) {
+	getTableForeignKeys(res) {
 		var self = this;
-		this.db.query("USE "+this.databasename+";");
-		this.db.query("SELECT information_schema.REFERENTIAL_CONSTRAINTS.REFERENCED_TABLE_NAME \
-					   FROM information_schema.REFERENTIAL_CONSTRAINTS \
-					   WHERE information_schema.REFERENTIAL_CONSTRAINTS.TABLE_NAME = '" + new_table.name + "';",
+		this.db.query("SELECT information_schema.REFERENTIAL_CONSTRAINTS.TABLE_NAME, \
+					   information_schema.REFERENTIAL_CONSTRAINTS.REFERENCED_TABLE_NAME \
+					   FROM information_schema.REFERENTIAL_CONSTRAINTS;",
 					   function(err, rows, fields) {
 							if (!err) {								
 								for (var i in rows) {
-									self.links.push({"from": new_table.name, "to": rows[i]["REFERENCED_TABLE_NAME"]});
-								}
+									var fromName = rows[i].TABLE_NAME;
+									var toName = rows[i].REFERENCED_TABLE_NAME;
+									self.links.push({"from": fromName, "to": toName});
+									if (self.tables[fromName] != undefined &&
+											self.tables[toName] != undefined) {
+												
+										self.tables[fromName].outgoing_links.push(toName);
+										self.tables[toName].incoming_links.push(fromName);
+									}
+								}								
+								console.log(self.tables);
+								self.db.end();
+								res.send(null);
 							} else {
 								console.log("error: " + err);
 								throw err;
@@ -101,9 +115,9 @@ class Revenger{
 													visibility: "public"
 												});
 					}
-					self.tables.push(new_table);
+					self.tables[new_table.name] = new_table;
 					if (res)
-						res.send(null);
+						self.getTableForeignKeys(res);
 				  }
 				  else{
 					console.log('Error while performing Query.');

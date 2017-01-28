@@ -184,10 +184,14 @@ function init() {
     xmlHttp_tabledata.onreadystatechange = function() { 
       if (xmlHttp_tabledata.readyState == 4 && xmlHttp_tabledata.status == 200) {
             data = JSON.parse(xmlHttp_tabledata.responseText);
-            var nodedata = data.tables;
-			for (var i in nodedata) {
-				lister.unshift(nodedata[i]["name"]);
-				nodedata[i]["category"] = entityNodeCategory;
+			var nodedata = []
+			console.log(JSON.stringify(data.tables));
+			for (var i in data.tables)
+			{
+				var table_data = data.tables[i]
+				lister.unshift(table_data.name);
+				table_data.category = entityNodeCategory;
+				nodedata.push(table_data);
 			}
             var linkdata = data.links;
             myDiagram.model = $(go.GraphLinksModel,
