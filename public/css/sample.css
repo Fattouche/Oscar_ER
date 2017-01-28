@@ -308,7 +308,7 @@ div.dhtmlx_window_active, div.dhx_modal_cover_dv {
      padding: 15px;
 }
 
-label {
+#left label {
   font: normal normal normal 12px courier new;
   color: #000000;
   float: left;
