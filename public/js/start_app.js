@@ -107,5 +107,40 @@ function createProject(){
     createTable();
 }
 
+function editProject(){
+  var table = document.getElementById("tablebody");
+  var projectSelected = false;
+  var projectIndex = 0;
+
+  for(var i = 0; i < table.rows.length; i++){
+      if(table.rows[i].cells[0].childNodes[0].checked == true && projectSelected == false){
+          projectIndex = i;
+          projectSelected = true;
+      }
+      else if(table.rows[i].cells[0].childNodes[0].checked == true && projectSelected == true){
+        alert("Select a single project to edit")
+        return;
+      }   
+  }
+  if(!projectSelected){
+    alert("Select a single project to edit")
+    return;
+  }
+
+  var newName = prompt("Please enter a new name for this project");
+  console.log(newName);
+
+  if(newName == ""){
+    alert("Please enter a valid name");
+    return;
+  }
+
+  project["projectData"][projectIndex]["name"] = newName;
+  
+  //RESEND DATA TO BACKEND HERE
+
+  createTable();
+}
+
 
 
