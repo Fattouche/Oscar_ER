@@ -13,19 +13,21 @@ class Revenger{
 		this.links = [];
 		this.tables = {};
   // 	table type:
-  // 	{
-  //       key: 14,
-  //       name: "Course",
-  //       properties: [
-  //         { name: "name", type: "String", visibility: "public" },
-  //         { name: "description", type: "String", visibility: "public" },
-  //         { name: "professor", type: "Professor", visibility: "public" },
-  //         { name: "location", type: "String", visibility: "public" },
-  //         { name: "times", type: "List<Time>", visibility: "public" },
-  //         { name: "prerequisites", type: "List<Course>", visibility: "public" },
-  //         { name: "students", type: "List<Student>", visibility: "public" }
-  //       ]
-  //    }
+  // 	{	
+  //	   (table name here) : {
+	//         key: 14,
+	//         name: "Course",
+	//         properties: [
+	//           { name: "name", type: "String", visibility: "public" },
+	//           { name: "description", type: "String", visibility: "public" },
+	//           { name: "professor", type: "Professor", visibility: "public" },
+	//           { name: "location", type: "String", visibility: "public" },
+	//           { name: "times", type: "List<Time>", visibility: "public" },
+	//           { name: "prerequisites", type: "List<Course>", visibility: "public" },
+	//           { name: "students", type: "List<Student>", visibility: "public" }
+	//         ]
+	//      }
+  //	}
 
   //	link type:
   //	{ from: 12, to: 11, relationship: "generalization" }
