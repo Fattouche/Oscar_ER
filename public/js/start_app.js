@@ -1,8 +1,4 @@
-//TEMPORARY: get data from backend in future
-var project = JSON.parse('{ "projectData" : [' +
-  '{"name":"name1", "host":"localhost", "user":"root", "password":"", "database":"northwind", "port":"3306"},' +
-  '{"name":"name2", "host":"host2", "user":"user2", "password":"p2", "database":"d2", "port":"port2"},' +
-  '{"name":"name3", "host":"host3", "user":"user3", "password":"p3", "database":"d3", "port":"port3"}]}')
+var project;
 
 function start() {
     var xmlHttp_start = new XMLHttpRequest();
@@ -53,7 +49,15 @@ function start() {
 
 
 function project_init(){
-  createTable();
+  var xmlHttp_getProjects = new XMLHttpRequest();
+    xmlHttp_getProjects.onreadystatechange = function() { 
+        if (xmlHttp_getProjects.readyState == 4 && xmlHttp_getProjects.status == 200)
+            project = JSON.parse(xmlHttp_getProjects.responseText);
+            createTable();
+    }
+  xmlHttp_getProjects.open("GET", "/getprojects", true);
+  xmlHttp_getProjects.send();
+
 }
 
 function createTable(){
