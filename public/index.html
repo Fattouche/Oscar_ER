@@ -17,11 +17,11 @@
 		<h2 id = "newProj">Create New Project</h2>
 		<form>
 		<div><label>Name:</label><input id = "newProjName"/></div>
-		<div><label>Host:</label><input id = "newProjHost"/></div>
-		<div><label>User:</label><input id = "newProjUser"/></div>
+		<div><label>Host:</label><input id = "newProjHost" value="localhost"></div>
+		<div><label>User:</label><input id = "newProjUser" value="root"></div>
 		<div><label>Password:</label><input id = "newProjPass"/></div>
-		<div><label>Database:</label><input id = "newProjData"/></div>
-		<div><label>Port:</label><input id = "newProjPort"/></div>
+		<div><label>Database:</label><input id = "newProjData" value="oscarER"></div>
+		<div><label>Port:</label><input id = "newProjPort" value="3306"></div>
 		</form>
 
 		<button id="createbutton" class="myButton" type="button" onclick="createProject()" style="margin:20px;">Create Project</button>

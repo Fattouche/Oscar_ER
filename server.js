@@ -24,16 +24,12 @@ app.get('/getprojects', function(req, res) {
 	});
 });
 
+
 app.post('/addproject', function(req, res) {
-    fs.readFile('app/projectData.json', 'utf8', function (err, data) {
-	  if (err) throw err;
-	  var data = JSON.parse(data);
-	  data.projectData.push(req.body.project);
-	  fs.writeFile ("app/projects.json", JSON.stringify(data), function(err) {
+	     fs.writeFile ("app/projectData.json", JSON.stringify(req.body), function(err) {
 	      if (err) throw err;
 	      console.log('projects file updated');
 	      });
-	});
 });
 
 app.post('/start', function(req, res) {

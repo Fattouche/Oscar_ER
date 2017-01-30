@@ -47,6 +47,13 @@ function start() {
     sb.onclick = ""
 }//end start()
 
+function updateJson(){
+	 var updateData = new XMLHttpRequest();
+     updateData.open("POST", "/addproject", true); // true for asynchronous 
+	 updateData.setRequestHeader('Content-Type', 'application/json');
+	 updateData.send(JSON.stringify(project));
+}
+
 
 function project_init(){
   var xmlHttp_getProjects = new XMLHttpRequest();
@@ -57,11 +64,9 @@ function project_init(){
     }
   xmlHttp_getProjects.open("GET", "/getprojects", true);
   xmlHttp_getProjects.send();
-
 }
 
 function createTable(){
-  console.log(project);
   var table = document.getElementById("tablebody");
   //clear the table 
   while(table.hasChildNodes())
@@ -69,7 +74,6 @@ function createTable(){
 
     //create a new row for each project 
   for(var i = 0; i < Object.keys(project["projectData"]).length; i++){
-   // console.log(project["projectData"][i]["port"])
     var newrow = table.insertRow(i);
     if(i%2 == 0)
       newrow.setAttribute("class","alt");
@@ -95,7 +99,7 @@ function deleteProject(){
     }
   }
   createTable();
-  //RESEND DATA TO BACKEND HERE
+   updateJson();
 }
 
 function createProject(){
@@ -106,9 +110,8 @@ function createProject(){
     var newProj = {"name":document.getElementById("newProjName").value, "host":document.getElementById("newProjHost").value, "user":document.getElementById("newProjUser").value, "password":document.getElementById("newProjPass").value, "database":document.getElementById("newProjData").value, "port":document.getElementById("newProjPort").value}
     project["projectData"].push(newProj);
 
-    //RESEND DATA TO BACKEND HERE
-
     createTable();
+	updateJson();
 }
 
 function editProject(){
@@ -132,18 +135,17 @@ function editProject(){
   }
 
   var newName = prompt("Please enter a new name for this project");
-  console.log(newName);
 
   if(newName == ""){
     alert("Please enter a valid name");
     return;
   }
-
-  project["projectData"][projectIndex]["name"] = newName;
-  
-  //RESEND DATA TO BACKEND HERE
+	
+  if(newName!=null)
+      project["projectData"][projectIndex]["name"] = newName;
 
   createTable();
+  updateJson();
 }
 
 

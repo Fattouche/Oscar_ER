@@ -1,4 +1,1 @@
-{"projectData" :[
-{"name":"name1", "host":"localhost", "user":"root", "password":"password", "database":"northwind", "port":"3306"},
-{"name":"name2", "host":"host2", "user":"user2", "password":"p2", "database":"d2", "port":"port2"}
-]}
+{"projectData":[{"name":"NorthWind(example)","host":"localhost","user":"root","password":"password","database":"northwind","port":"3306"}]}

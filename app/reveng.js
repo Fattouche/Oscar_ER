@@ -50,9 +50,6 @@ class Revenger{
 
 			for (var i = 0; i < table_names.length; i++){
 				var name = table_names[i].table_name;
-				console.log("********************");
-				console.log(name);
-				console.log("********************");
 				var new_table = {
 					"key": name,
 					"name": name,
@@ -92,7 +89,7 @@ class Revenger{
 										self.tables[toName].incoming_links.push(fromName);
 									}
 								}								
-								console.log(self.tables);
+								//console.log(self.tables);
 								self.db.end();
 								res.send(null);
 							} else {
