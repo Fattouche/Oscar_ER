@@ -12,25 +12,29 @@ class Revenger{
 		this.databasename = database;
 		this.links = [];
 		this.tables = {};
-  // 	table type:
-  // 	{	
-  //	   (table name here) : {
-	//         key: 14,
-	//         name: "Course",
-	//         properties: [
-	//           { name: "name", type: "String", visibility: "public" },
-	//           { name: "description", type: "String", visibility: "public" },
-	//           { name: "professor", type: "Professor", visibility: "public" },
-	//           { name: "location", type: "String", visibility: "public" },
-	//           { name: "times", type: "List<Time>", visibility: "public" },
-	//           { name: "prerequisites", type: "List<Course>", visibility: "public" },
-	//           { name: "students", type: "List<Student>", visibility: "public" }
-	//         ]
-	//      }
-  //	}
+/*
+   	example format of this.tables:
+   	{	
+		(table name here) : {
+	        key: 14,
+	        name: "Course",
+	        properties: [
+	           { name: "name", type: "String", visibility: "public" },
+	           { name: "description", type: "String", visibility: "public" },
+	           { name: "professor", type: "Professor", visibility: "public" },
+	           { name: "location", type: "String", visibility: "public" },
+	           { name: "times", type: "List<Time>", visibility: "public" },
+	           { name: "prerequisites", type: "List<Course>", visibility: "public" },
+	           { name: "students", type: "List<Student>", visibility: "public" }
+	        ]
+	    }
+  	}
 
-  //	link type:
-  //	{ from: 12, to: 11, relationship: "generalization" }
+  	example format of this.links:
+	[
+  		{ from: 12, to: 11, relationship: "generalization" }
+	]
+*/
 	}
 
 	getData(res){
@@ -88,8 +92,7 @@ class Revenger{
 										self.tables[fromName].outgoing_links.push(toName);
 										self.tables[toName].incoming_links.push(fromName);
 									}
-								}								
-								//console.log(self.tables);
+								}
 								self.db.end();
 								res.send(null);
 							} else {
