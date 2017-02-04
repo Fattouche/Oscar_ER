@@ -39,6 +39,6 @@ app.get('/tabledata', function(req, res) {
 	Revenger.getData(res);
 });
 
-app.listen(8080, function() {
+app.listen(8081, function() {
     console.log('Started Tals Pals ER Visualizer Server!');
 });
