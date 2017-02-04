@@ -127,10 +127,6 @@ class Revenger{
 				  }
 				});
 	}
-
-	generateLinks(){
-
-	}
 }
 
 module.exports = {
