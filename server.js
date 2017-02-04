@@ -18,18 +18,16 @@ app.get('/', function(req, res) {
 
 app.get('/getprojects', function(req, res) {
 	fs.readFile('app/projectData.json', 'utf8', function (err, data) {
-		console.log(data);
-	  if (err) throw err;
-	  res.json(JSON.parse(data));
+		if (err) throw err;
+		res.json(JSON.parse(data));
 	});
 });
 
 
 app.post('/addproject', function(req, res) {
-	     fs.writeFile ("app/projectData.json", JSON.stringify(req.body), function(err) {
-	      if (err) throw err;
-	      console.log('projects file updated');
-	      });
+	fs.writeFile ("app/projectData.json", JSON.stringify(req.body), function(err) {
+	    if (err) throw err;
+	});
 });
 
 app.post('/start', function(req, res) {
@@ -42,5 +40,5 @@ app.get('/tabledata', function(req, res) {
 });
 
 app.listen(8080, function() {
-    console.log('Started!');
+    console.log('Started Tals Pals ER Visualizer Server!');
 });
