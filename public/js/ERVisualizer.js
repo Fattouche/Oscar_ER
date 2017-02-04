@@ -29,15 +29,15 @@ function init() {
       case "package": return "~";
       default: return v;
     }
-  }
-
-  // the item template for properties
+  } //end convertVisibility
+  
+  // The item template for properties - this code was provided by GoJS templates
   var propertyTemplate =
     $(go.Panel, "Horizontal",
       // property visibility/access
       $(go.TextBlock,
         { isMultiline: false, editable: false, width: 12 },
-        new go.Binding("text", "visibility", convertVisibility)),
+        new go.Binding("text", "visibility", convertVisibility)), //binding to allow nodes to be hidden
       // property name, underlined if scope=="class" to indicate static property
       $(go.TextBlock,
         { isMultiline: false, editable: true },
@@ -55,7 +55,7 @@ function init() {
         new go.Binding("text", "default", function(s) { return s ? " = " + s : ""; }))
     );
 
-  // the item template for methods
+  // The item template for methods - this code was provided by GoJS templates
   var methodTemplate =
     $(go.Panel, "Horizontal",
       // method visibility/access
@@ -88,6 +88,7 @@ function init() {
     );
 
 	var entityNodeCategory = "entity";	
+  // The majority of this call was provided by GoJS templates
     myDiagram.nodeTemplateMap.add(entityNodeCategory, 
       $(go.Node, "Auto", new go.Binding("visible", "entityVisibility"),
         {
@@ -154,11 +155,12 @@ function init() {
       )
 	);
   	  
-
+  // This function was provided by GoJS templates
   function convertIsTreeLink(r) {
     return r === "generalization";
   }
 
+  // This function was provided by GoJS templates
   function convertFromArrow(r) {
     switch (r) {
       case "generalization": return "";
@@ -166,6 +168,7 @@ function init() {
     }
   }
 
+  // This function was provided by GoJS templates
   function convertToArrow(r) {
     switch (r) {
       case "generalization": return "Triangle";
@@ -174,6 +177,7 @@ function init() {
     }
   }
 
+  // The item template for links
   myDiagram.linkTemplate =
     $(go.Link,
       $(go.Shape)
@@ -202,7 +206,7 @@ function init() {
                 linkDataArray: linkdata
               });
   	  }
-    }
+    } //end onreadystatechange
   
   xmlHttp_tabledata.open("GET", "/tabledata", true); // true for asynchronous 
   xmlHttp_tabledata.send(null);
@@ -210,10 +214,8 @@ function init() {
   var myOverview =
       $(go.Overview, "myOverviewDiv",  // the HTML DIV element for the Overview
         { observed: myDiagram, contentAlignment: go.Spot.Center }); 
-      
 
-
-}//end init
+} //end init
   
 function exportImage(){
 	var img = myDiagram.makeImage({
@@ -224,7 +226,7 @@ function exportImage(){
 	a.href = img.src;
 	a.download = 'ERScreenShot.png';
 	a.click();
-}
+} 
 
 //hide all entities
 function hideAll(){
@@ -235,7 +237,7 @@ function hideAll(){
       setVisibility(nodeDataArray[i]["name"], false);
     }
   };
-}//end hideAll
+} //end hideAll
 
 //show all entities
 function showAll(){
@@ -274,7 +276,7 @@ function setVisibility(entityName, isSelected) {
         div.appendChild(button);
         div.appendChild(label);
   }
-}
+} //end setVisibility
 
 function cmCommand(e, obj){
 	var node = obj.part.adornedPart;
@@ -291,7 +293,7 @@ function cmCommand(e, obj){
 			setVisibility(node.data.outgoing_links[i], true);
 		}
 	}
-}
+} //end cmCommand
 
 function ChangeLayout(){
 	 var layout = document.getElementById("layout").value;
@@ -313,7 +315,7 @@ function ChangeLayout(){
 			myDiagram.layout = new go.GridLayout();
 	 }
 	 myDiagram.commitTransaction("Change Layout");
-}
+} //end changeLayout
 
 function searchDiagram() {  // called by button
     var input = document.getElementById("mySearch");
@@ -335,4 +337,4 @@ function searchDiagram() {  // called by button
     }
 
     myDiagram.commitTransaction("highlight search");
-  }
+  } //end searchDiagram
