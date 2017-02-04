@@ -12,6 +12,7 @@ class Revenger{
 		this.databasename = database;
 		this.links = [];
 		this.tables = {};
+	} //end constructor
 /*
    	example format of this.tables:
    	{	
@@ -35,11 +36,10 @@ class Revenger{
   		{ from: 12, to: 11, relationship: "generalization" }
 	]
 */
-	}
 
 	getData(res){
 		res.json({tables: this.tables, links: this.links})
-	}
+	} //end getData
 
 	getTableSchema(res){
 		var self = this;
@@ -72,8 +72,9 @@ class Revenger{
 			console.log('Error while performing Query.');
 			throw err;
 		  }
-		});
-	}
+		} //end SELECT callback
+		); // end SELECT query
+	} //end getTableSchema
 	
 	getTableForeignKeys(res) {
 		var self = this;
@@ -99,9 +100,9 @@ class Revenger{
 								console.log("error: " + err);
 								throw err;
 							}
-						}
-		);
-	}
+						} //end SELECT callback
+		); //end SELECT query
+	} //end getTableForeignKeys
 
 	getTableProperties(new_table, res){
 		var self = this;
@@ -125,9 +126,10 @@ class Revenger{
 					console.log('Error while performing Query.');
 					throw err;
 				  }
-				});
-	}
-}
+				} //end SELECT callback
+		); //end SELECT query
+	} //end getTableProperties
+} //end class Revenger
 
 module.exports = {
 	Revenger: Revenger

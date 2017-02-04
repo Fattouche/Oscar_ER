@@ -45,14 +45,14 @@ function start() {
     var sb = document.getElementById("startbutton");
     sb.innerHTML = "Mining Database..."
     sb.onclick = ""
-}//end start()
+} //end start
 
 function updateJson(){
 	 var updateData = new XMLHttpRequest();
      updateData.open("POST", "/addproject", true); // true for asynchronous 
 	 updateData.setRequestHeader('Content-Type', 'application/json');
 	 updateData.send(JSON.stringify(project));
-}
+} //end updateJson
 
 
 function project_init(){
@@ -64,7 +64,7 @@ function project_init(){
     }
   xmlHttp_getProjects.open("GET", "/getprojects", true);
   xmlHttp_getProjects.send();
-}
+} //end project_init
 
 function createTable(){
   var table = document.getElementById("tablebody");
@@ -86,7 +86,7 @@ function createTable(){
     x.setAttribute("type", "checkbox");
     newSelect.appendChild(x);
   } 
-}//end createTable()
+} //end createTable
 
 
 function deleteProject(){
@@ -100,7 +100,7 @@ function deleteProject(){
   }
   createTable();
    updateJson();
-}
+} //end deleteProject
 
 function createProject(){
     if(document.getElementById("newProjName").value.length == 0 || document.getElementById("newProjHost").value.length == 0 || document.getElementById("newProjUser").value.length == 0 || document.getElementById("newProjData").value.length == 0 || document.getElementById("newProjPort").value.length == 0){
@@ -112,7 +112,7 @@ function createProject(){
 
     createTable();
 	updateJson();
-}
+} //end createProject
 
 function editProject(){
   var table = document.getElementById("tablebody");
@@ -146,7 +146,7 @@ function editProject(){
 
   createTable();
   updateJson();
-}
+} //end editProject
 
 
 
