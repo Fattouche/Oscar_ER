@@ -30,8 +30,11 @@ app.post('/addproject', function(req, res) {
 	});
 });
 
+app.post('/connect', function(req, res) {
+	Revenger = new reveng.Revenger(res, mysql, req.body.host, req.body.port, req.body.user, req.body.password, req.body.database);
+});
+
 app.post('/start', function(req, res) {
-	Revenger = new reveng.Revenger(mysql, req.body.host, req.body.port, req.body.user, req.body.password, req.body.database);
 	Revenger.getTableSchema(res);
 });
 

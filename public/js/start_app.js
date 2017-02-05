@@ -1,11 +1,30 @@
 var project;
 
 function start() {
-    var xmlHttp_start = new XMLHttpRequest();
-    xmlHttp_start.onreadystatechange = function() { 
-        if (xmlHttp_start.readyState == 4 && xmlHttp_start.status == 200)
-            console.log(xmlHttp_start.responseText);
-            window.location.href = "/graph.html";
+    var xmlHttp_connect = new XMLHttpRequest();
+    xmlHttp_connect.onreadystatechange = function() { 
+        if (xmlHttp_connect.readyState == 4 && xmlHttp_connect.status == 200){
+            var status = JSON.parse(xmlHttp_connect.responseText);
+
+            if (status.connect){
+              var sb = document.getElementById("startbutton");
+              sb.innerHTML = "Mining Database..."
+              sb.onclick = ""
+              var xmlHttp_start = new XMLHttpRequest();
+              xmlHttp_start.onreadystatechange = function() { 
+                  if (xmlHttp_start.readyState == 4 && xmlHttp_start.status == 200){
+                    console.log(xmlHttp_start.responseText);
+                    window.location.href = "/graph.html";
+                  }
+                }
+              xmlHttp_start.open("POST", "/start", true)
+              xmlHttp_start.send();
+            }
+            else{
+              alert("MySQL connect failed.")
+            }
+        }             
+            
     }
 
     var p_host, p_port, p_user, p_password, p_database;
@@ -34,17 +53,14 @@ function start() {
     }
 
 
-    xmlHttp_start.open("POST", "/start", true); // true for asynchronous 
-    xmlHttp_start.setRequestHeader('Content-Type', 'application/json');
-    xmlHttp_start.send(JSON.stringify({host: p_host,     // currently theres no error handling if these values 
+    xmlHttp_connect.open("POST", "/connect", true); // true for asynchronous 
+    xmlHttp_connect.setRequestHeader('Content-Type', 'application/json');
+    xmlHttp_connect.send(JSON.stringify({host: p_host,     // currently theres no error handling if these values 
                                        port: p_port,
                                        user: p_user,
                                        password: p_password,
                                        database: p_database}));
     
-    var sb = document.getElementById("startbutton");
-    sb.innerHTML = "Mining Database..."
-    sb.onclick = ""
 } //end start
 
 function updateJson(){

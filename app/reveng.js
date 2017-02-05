@@ -1,7 +1,7 @@
 "use strict"
 class Revenger{
 
-	constructor(mysql, host, port, user, password, database){
+	constructor(res, mysql, host, port, user, password, database){
 		this.db = mysql.createConnection({
 		  host     : host,
 		  port     : port,
@@ -12,6 +12,15 @@ class Revenger{
 		this.databasename = database;
 		this.links = [];
 		this.tables = {};
+		this.db.connect(function(err) {
+			if (err){
+				res.json({connect: false});
+			}
+			else {
+				res.json({connect: true});
+			}
+		});
+
 	} //end constructor
 /*
    	example format of this.tables:
