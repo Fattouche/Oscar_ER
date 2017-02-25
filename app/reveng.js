@@ -59,11 +59,11 @@ class Revenger{
 				  FROM information_schema.tables \
 				  WHERE table_schema=\""+this.databasename+"\";", function(err, rows, fields) {
 		  if (!err){
-		  	var table_names = rows;
+		  	var tableNames = rows;
 
-			for (var i = 0; i < table_names.length; i++){
-				var name = table_names[i].table_name;
-				var new_table = {
+			for (var i = 0; i < tableNames.length; i++){
+				var name = tableNames[i].table_name;
+				var newTable = {
 					"key": name,
 					"name": name,
 					"properties": [],
@@ -71,10 +71,10 @@ class Revenger{
 					"outgoing_links": [],
 					"incoming_links": []
 				}
-				if (i == table_names.length-1) // last one
-					self.getTableProperties(new_table, res);
+				if (i == tableNames.length-1) // last one
+					self.getTableProperties(newTable, res);
 				else
-					self.getTableProperties(new_table);
+					self.getTableProperties(newTable);
 			}
 		  }
 		  else{
@@ -113,21 +113,21 @@ class Revenger{
 		); //end SELECT query
 	} //end getTableForeignKeys
 
-	getTableProperties(new_table, res){
+	getTableProperties(newTable, res){
 		var self = this;
 		this.db.query("SELECT * \
 					   FROM information_schema.columns \
-  				  	   WHERE table_name = \""+new_table.name+"\" \
+  				  	   WHERE table_name = \""+newTable.name+"\" \
   				  	   AND table_schema=\""+this.databasename+"\";", function(err, rows, fields) {
 				  if (!err){
 					for (var j = 0; j < rows.length; j++){
-						new_table.properties.push({
+						newTable.properties.push({
 													name: rows[j].COLUMN_NAME,
 													type: rows[j].DATA_TYPE,
 													visibility: "public"
 												});
 					}
-					self.tables[new_table.name] = new_table;
+					self.tables[newTable.name] = newTable;
 					if (res)
 						self.getTableForeignKeys(res);
 				  }
