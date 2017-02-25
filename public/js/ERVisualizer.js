@@ -9,15 +9,15 @@ function init() {
   myDiagram =
     $(go.Diagram, "myDiagramDiv",
       {
-	"toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
+    "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
         initialContentAlignment: go.Spot.Center,
-	  initialDocumentSpot: go.Spot.TopCenter,
+      initialDocumentSpot: go.Spot.TopCenter,
         "undoManager.isEnabled": true,
-	  initialViewportSpot: go.Spot.Center,
-	  initialAutoScale: go.Diagram.Uniform,
+      initialViewportSpot: go.Spot.Center,
+      initialAutoScale: go.Diagram.Uniform,
         layout: $(go.GridLayout)
       });
-  		
+        
   myDiagram.nodeTemplateMap = new go.Map("string", go.Node);
 
   // show visibility or access as a single character at the beginning of each property or method
@@ -40,14 +40,14 @@ function init() {
         new go.Binding("text", "visibility", convertVisibility)), //binding to allow nodes to be hidden
       // property name, underlined if scope=="class" to indicate static property
       $(go.TextBlock,
-        { isMultiline: false, editable: true },
+        { isMultiline: false, editable: false },
         new go.Binding("text", "name").makeTwoWay(),
         new go.Binding("isUnderline", "scope", function(s) { return s[0] === 'c' })),
       // property type, if known
       $(go.TextBlock, "",
         new go.Binding("text", "type", function(t) { return (t ? ": " : ""); })),
       $(go.TextBlock,
-        { isMultiline: false, editable: true },
+        { isMultiline: false, editable: false },
         new go.Binding("text", "type").makeTwoWay()),
       // property default value, if any
       $(go.TextBlock,
@@ -64,7 +64,7 @@ function init() {
         new go.Binding("text", "visibility", convertVisibility)),
       // method name, underlined if scope=="class" to indicate static method
       $(go.TextBlock,
-        { isMultiline: false, editable: true },
+        { isMultiline: false, editable: false },
         new go.Binding("text", "name").makeTwoWay(),
         new go.Binding("isUnderline", "scope", function(s) { return s[0] === 'c' })),
       // method parameters
@@ -83,11 +83,11 @@ function init() {
       $(go.TextBlock, "",
         new go.Binding("text", "type", function(t) { return (t ? ": " : ""); })),
       $(go.TextBlock,
-        { isMultiline: false, editable: true },
+        { isMultiline: false, editable: false },
         new go.Binding("text", "type").makeTwoWay())
     );
 
-	var entityNodeCategory = "entity";	
+    var entityNodeCategory = "entity";  
   // The majority of this call was provided by GoJS templates
     myDiagram.nodeTemplateMap.add(entityNodeCategory, 
       $(go.Node, "Auto", new go.Binding("visible", "entityVisibility"),
@@ -96,20 +96,20 @@ function init() {
           fromSpot: go.Spot.AllSides,
           toSpot: go.Spot.AllSides
         },
-		 
-		{
+         
+        {
         contextMenu:     // define a context menu for each node
           $(go.Adornment, "Vertical",  // that has one button
             $("ContextMenuButton",
               $(go.TextBlock, "hide"),
               {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand}),
-			$("ContextMenuButton",
+            $("ContextMenuButton",
               $(go.TextBlock, "expand"),
               {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand})
           )  
-		},
+        },
         $(go.Shape, { fill: "lightyellow" },
-		new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightyellow"; }).ofObject()),
+        new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightyellow"; }).ofObject()),
         $(go.Panel, "Table",
           { defaultRowSeparatorStroke: "black" },
           // header
@@ -117,7 +117,7 @@ function init() {
             {
               row: 0, columnSpan: 2, margin: 3, alignment: go.Spot.Center,
               font: "bold 12pt sans-serif",
-              isMultiline: false, editable: true
+              isMultiline: false, editable: false
             },
             new go.Binding("text", "name").makeTwoWay()),
           // properties
@@ -125,7 +125,7 @@ function init() {
             { row: 1, font: "italic 10pt sans-serif" },
             new go.Binding("visible", "visible", function(v) { return !v; }).ofObject("PROPERTIES")),
           $(go.Panel, "Vertical", { name: "PROPERTIES" },
-			new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightyellow"; }).ofObject(),
+            new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightyellow"; }).ofObject(),
             new go.Binding("itemArray", "properties"),
             {
               row: 1, margin: 3, stretch: go.GraphObject.Fill,
@@ -153,8 +153,8 @@ function init() {
             new go.Binding("visible", "methods", function(arr) { return arr.length > 0; }))
         )
       )
-	);
-  	  
+    );
+      
   // This function was provided by GoJS templates
   function convertIsTreeLink(r) {
     return r === "generalization";
@@ -183,20 +183,20 @@ function init() {
       $(go.Shape)
     );
 
-	
+    
     var xmlHttp_tabledata = new XMLHttpRequest();
     xmlHttp_tabledata.onreadystatechange = function() { 
       if (xmlHttp_tabledata.readyState == 4 && xmlHttp_tabledata.status == 200) {
             data = JSON.parse(xmlHttp_tabledata.responseText);
-			var nodedata = []
-			console.log(JSON.stringify(data.tables));
-			for (var i in data.tables)
-			{
-				var table_data = data.tables[i]
-				lister.unshift(table_data.name);
-				table_data.category = entityNodeCategory;
-				nodedata.push(table_data);
-			}
+            var nodedata = []
+            console.log(JSON.stringify(data.tables));
+            for (var i in data.tables)
+            {
+                var table_data = data.tables[i]
+                lister.unshift(table_data.name);
+                table_data.category = entityNodeCategory;
+                nodedata.push(table_data);
+            }
             var linkdata = data.links;
             myDiagram.model = $(go.GraphLinksModel,
               {
@@ -205,7 +205,7 @@ function init() {
                 nodeDataArray: nodedata,
                 linkDataArray: linkdata
               });
-  	  }
+      }
     } //end onreadystatechange
   
   xmlHttp_tabledata.open("GET", "/tabledata", true); // true for asynchronous 
@@ -218,14 +218,14 @@ function init() {
 } //end init
   
 function exportImage(){
-	var img = myDiagram.makeImage({
-		background: "rgba(255,255, 255, 255)",
-		scale:1
-	});  
-	var a  = document.createElement('a');
-	a.href = img.src;
-	a.download = 'ERScreenShot.png';
-	a.click();
+    var img = myDiagram.makeImage({
+        background: "rgba(255,255, 255, 255)",
+        scale:1
+    });  
+    var a  = document.createElement('a');
+    a.href = img.src;
+    a.download = 'ERScreenShot.png';
+    a.click();
 } 
 
 //hide all entities
@@ -255,86 +255,89 @@ function setVisibility(entityName, isSelected) {
   myDiagram.model.startTransaction("change_entity_visibility");
   var data = myDiagram.model.findNodeDataForKey(entityName);
   if (data != null) 
+  {
     myDiagram.model.setDataProperty(data, "entityVisibility", isSelected);
+  }
   myDiagram.model.commitTransaction("change_entity_visibility");
 
   //if element is not visible, create a checkbox 
   if(isSelected == false){
-      var button = document.createElement('button');
-		    button.className = "entityButton";
-        button.textContent = entityName;
-        button.onclick = function(cb) {
-            setVisibility(button.textContent, true);
-            button.parentNode.removeChild(button);
-            label.parentNode.removeChild(label);
-        } 
-        var div = document.getElementById("entityList");
-        var label = document.createElement('label')
-        label.htmlFor = "id";
-        label.appendChild(document.createTextNode(button.name));
-        
-        div.appendChild(button);
-        div.appendChild(label);
+    var button = document.createElement('button');
+    button.className = "entityButton";
+    button.textContent = entityName;
+    button.onclick = function(cb) {
+      setVisibility(button.textContent, true);
+      button.parentNode.removeChild(button);
+      label.parentNode.removeChild(label);
+    } 
+    var div = document.getElementById("entityList");
+    var label = document.createElement('label')
+    label.htmlFor = "id";
+    label.appendChild(document.createTextNode(button.name));
+     
+    div.appendChild(button);
+    div.appendChild(label);
   }
 } //end setVisibility
 
 function cmCommand(e, obj){
-	var node = obj.part.adornedPart;
-	var button = obj.elt(1);
-	if(button.text=="hide"){
-		setVisibility(node.data.name, false);
-	}else if(button.text=="expand"){
-		for (var i in node.data.incoming_links)
-		{
-			setVisibility(node.data.incoming_links[i], true);
-		}
-		for (var i in node.data.outgoing_links)
-		{
-			setVisibility(node.data.outgoing_links[i], true);
-		}
-	}
+  var node = obj.part.adornedPart;
+  var button = obj.elt(1);
+  if(button.text=="hide"){
+      setVisibility(node.data.name, false);
+  }
+  else if(button.text=="expand"){
+    for (var i in node.data.incoming_links)
+    {
+      setVisibility(node.data.incoming_links[i], true);
+    }
+    for (var i in node.data.outgoing_links)
+    {
+      setVisibility(node.data.outgoing_links[i], true);
+    }
+  }
 } //end cmCommand
 
 function ChangeLayout(){
-	 var layout = document.getElementById("layout").value;
-	 myDiagram.startTransaction("Change Layout");
-	 switch(layout){
-		case "force-directed":
-			myDiagram.layout = new go.ForceDirectedLayout();
-			break;
-		case "circular": 
-			myDiagram.layout = new go.CircularLayout();
-			break;
-		case "tree":
-			myDiagram.layout = new go.TreeLayout();
-			break;
-		case "layered-digraph":
-			myDiagram.layout = new go.LayeredDigraphLayout();
-			break;
-		default:
-			myDiagram.layout = new go.GridLayout();
-	 }
-	 myDiagram.commitTransaction("Change Layout");
+  var layout = document.getElementById("layout").value;
+  myDiagram.startTransaction("Change Layout");
+  switch(layout){
+    case "force-directed":
+      myDiagram.layout = new go.ForceDirectedLayout();
+      break;
+    case "circular": 
+      myDiagram.layout = new go.CircularLayout();
+      break;
+    case "tree":
+      myDiagram.layout = new go.TreeLayout();
+      break;
+    case "layered-digraph":
+      myDiagram.layout = new go.LayeredDigraphLayout();
+      break;
+    default:
+    myDiagram.layout = new go.GridLayout();
+  }
+  myDiagram.commitTransaction("Change Layout");
 } //end changeLayout
 
 function searchDiagram() {  // called by button
-    var input = document.getElementById("mySearch");
-    if (!input) return;
-    input.focus();
+  var input = document.getElementById("mySearch");
+  if (!input) return;
+  input.focus();
 
-    // create a case insensitive RegExp from what the user typed
-    var regex = new RegExp(input.value, "i");
+  // create a case insensitive RegExp from what the user typed
+  var regex = new RegExp(input.value, "i");
 
-    myDiagram.startTransaction("highlight search");
-    myDiagram.clearHighlighteds();
+  myDiagram.startTransaction("highlight search");
+  myDiagram.clearHighlighteds();
 
-    // search four different data properties for the string, any of which may match for success
-    if (input.value) {  // empty string only clears highlighteds collection
-      var results = myDiagram.findNodesByExample({ name: regex });
-      myDiagram.highlightCollection(results);
-      // try to center the diagram at the first node that was found
-      if (results.count > 0) myDiagram.centerRect(results.first().actualBounds);
-    }
+  // search four different data properties for the string, any of which may match for success
+  if (input.value) {  // empty string only clears highlighteds collection
+    var results = myDiagram.findNodesByExample({ name: regex });
+    myDiagram.highlightCollection(results);
+    // try to center the diagram at the first node that was found
+    if (results.count > 0) myDiagram.centerRect(results.first().actualBounds);
+  }
 
-    myDiagram.commitTransaction("highlight search");
-  } //end searchDiagram
+  myDiagram.commitTransaction("highlight search");
+} //end searchDiagram
