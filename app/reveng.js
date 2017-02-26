@@ -20,7 +20,6 @@ class Revenger{
         res.json({connect: true});
       }
     });
-
   } //end constructor
 /*
     example format of this.tables:
@@ -46,75 +45,107 @@ class Revenger{
   ]
 */
 
+
   getData(res){
     res.json({tables: this.tables, links: this.links})
   } //end getData
 
+  
   getTableSchema(res){
     var self = this;
     self.tables = {};
     self.links = [];
     this.db.query("USE "+this.databasename+";");
-    this.db.query("SELECT table_name \
-          FROM information_schema.tables \
-          WHERE table_schema=\""+this.databasename+"\";", function(err, rows, fields) {
-      if (!err){
-        var tableNames = rows;
+    this.db.query("SELECT TABLE_NAME \
+          FROM information_schema.TABLES \
+          WHERE TABLE_SCHEMA =\""+this.databasename+"\";", function(err, rows, fields) {
+        if (!err){
+          var tableNames = rows;
 
-      for (var i = 0; i < tableNames.length; i++){
-        var name = tableNames[i].table_name;
-        var newTable = {
-          "key": name,
-          "name": name,
-          "properties": [],
-          "foreign_keys": [],
-          "outgoing_links": [],
-          "incoming_links": []
+          for (var i = 0; i < tableNames.length; i++){
+            var name = tableNames[i].TABLE_NAME;
+            var newTable = {
+              "key": name,
+              "name": name,
+              "properties": [],
+              "foreign_keys": [],
+              "outgoing_links": [],
+              "incoming_links": [],
+              "primary_keys": [],
+            }
+            if (i == tableNames.length-1) // last one
+              self.getTableProperties(newTable, res);
+            else
+              self.getTableProperties(newTable);
+          }
         }
-        if (i == tableNames.length-1) // last one
-          self.getTableProperties(newTable, res);
-        else
-          self.getTableProperties(newTable);
-      }
-      }
-      else{
-      console.log('Error while performing Query.');
-      throw err;
-      }
-    } //end SELECT callback
+        else {
+          console.log('Error while performing Query.');
+          throw err;
+        }
+      } //end SELECT callback
     ); // end SELECT query
   } //end getTableSchema
+  
   
   getTableProperties(newTable, res){
     var self = this;
     this.db.query("SELECT * \
-             FROM information_schema.columns \
-                 WHERE table_name = \""+newTable.name+"\" \
-                 AND table_schema=\""+this.databasename+"\";", function(err, rows, fields) {
+                 FROM information_schema.COLUMNS \
+                 WHERE TABLE_NAME = '" + newTable.name + "' \
+                 AND TABLE_SCHEMA = '" + this.databasename + "';", function(err, rows, fields) {
           if (!err){
-          for (var j = 0; j < rows.length; j++){
-            newTable.properties.push({
+            for (var j = 0; j < rows.length; j++){
+              newTable.properties.push({
                           name: rows[j].COLUMN_NAME,
                           type: rows[j].DATA_TYPE,
-                          visibility: "public"
+                          visibility: "public",
                         });
+            }
+            self.tables[newTable.name] = newTable;
+            self.getTablePrimaryKeys(newTable.name, res);
           }
-          self.tables[newTable.name] = newTable;
-          if (res)
-            self.getTableForeignKeys(res);
-          }
-          else{
-          console.log('Error while performing Query.');
-          throw err;
+          else {
+            console.log('Error while performing Query.');
+            throw err;
           }
         } //end SELECT callback
     ); //end SELECT query
   } //end getTableProperties
   
-  getTableForeignKeys(res) {
+  
+  getTablePrimaryKeys(tableName, res) {
     var self = this;
-    this.db.query("SELECT information_schema.REFERENTIAL_CONSTRAINTS.TABLE_NAME, \
-             information_schema.REFERENTIAL_CONSTRAINTS.REFERENCED_TABLE_NAME \
+    this.db.query("SELECT COLUMN_NAME \
+                   FROM information_schema.KEY_COLUMN_USAGE \
+                   WHERE TABLE_NAME = '" + tableName + "' AND CONSTRAINT_NAME = 'PRIMARY';",
+                   function(err, rows, fields) {
+                     if (!err) {
+                        for (var i in rows) {
+                          var primaryKeyName = rows[i].COLUMN_NAME;
+                          self.tables[tableName].primary_keys.push(primaryKeyName);
+                        }                      
+                        if (res) {
+                          console.log("Primary Keys:");
+                          for (var i in self.tables)
+                          {
+                            console.log(self.tables[i].key);
+                            console.log(self.tables[i].primary_keys);
+                          }
+                          self.getAllForeignKeys(res);
+                        }
+                     } else {
+                       console.log("error: " + err);
+                       throw err;
+                     }
+                   } // end SELECT callback
+    ); //end SELECT query
+  } // end getTablePrimaryKeys
+  
+  
+  getAllForeignKeys(res) {
+    var self = this;
+    this.db.query("SELECT TABLE_NAME, REFERENCED_TABLE_NAME \
              FROM information_schema.REFERENTIAL_CONSTRAINTS;",
              function(err, rows, fields) {
               if (!err) {               
@@ -137,8 +168,10 @@ class Revenger{
               }
             } //end SELECT callback
     ); //end SELECT query
-  } //end getTableForeignKeys
+  } //end getAllForeignKeys
 
+  
+  
 } //end class Revenger
 
 module.exports = {
