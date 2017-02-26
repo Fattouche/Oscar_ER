@@ -9,15 +9,15 @@ function init() {
   myDiagram =
     $(go.Diagram, "myDiagramDiv",
       {
-    "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
+	"toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
         initialContentAlignment: go.Spot.Center,
-      initialDocumentSpot: go.Spot.TopCenter,
+	  initialDocumentSpot: go.Spot.TopCenter,
         "undoManager.isEnabled": true,
-      initialViewportSpot: go.Spot.Center,
-      initialAutoScale: go.Diagram.Uniform,
+	  initialViewportSpot: go.Spot.Center,
+	  initialAutoScale: go.Diagram.Uniform,
         layout: $(go.GridLayout)
       });
-        
+  		
   myDiagram.nodeTemplateMap = new go.Map("string", go.Node);
 
   // show visibility or access as a single character at the beginning of each property or method
@@ -87,29 +87,30 @@ function init() {
         new go.Binding("text", "type").makeTwoWay())
     );
 
-    var entityNodeCategory = "entity";  
+	var lowLevelEntity = "lowLevelEntity";	
   // The majority of this call was provided by GoJS templates
-    myDiagram.nodeTemplateMap.add(entityNodeCategory, 
+    myDiagram.nodeTemplateMap.add(lowLevelEntity, 
       $(go.Node, "Auto", new go.Binding("visible", "entityVisibility"),
         {
+		  visible:false,
           locationSpot: go.Spot.Center,
           fromSpot: go.Spot.AllSides,
           toSpot: go.Spot.AllSides
         },
-         
-        {
+		 
+		{
         contextMenu:     // define a context menu for each node
           $(go.Adornment, "Vertical",  // that has one button
             $("ContextMenuButton",
               $(go.TextBlock, "hide"),
               {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand}),
-            $("ContextMenuButton",
+			$("ContextMenuButton",
               $(go.TextBlock, "expand"),
               {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand})
           )  
-        },
+		},
         $(go.Shape, { fill: "lightyellow" },
-        new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightyellow"; }).ofObject()),
+		new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightyellow"; }).ofObject()),
         $(go.Panel, "Table",
           { defaultRowSeparatorStroke: "black" },
           // header
@@ -117,7 +118,7 @@ function init() {
             {
               row: 0, columnSpan: 2, margin: 3, alignment: go.Spot.Center,
               font: "bold 12pt sans-serif",
-              isMultiline: false, editable: false
+              isMultiline: false, editable: true
             },
             new go.Binding("text", "name").makeTwoWay()),
           // properties
@@ -125,7 +126,7 @@ function init() {
             { row: 1, font: "italic 10pt sans-serif" },
             new go.Binding("visible", "visible", function(v) { return !v; }).ofObject("PROPERTIES")),
           $(go.Panel, "Vertical", { name: "PROPERTIES" },
-            new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightyellow"; }).ofObject(),
+			new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightyellow"; }).ofObject(),
             new go.Binding("itemArray", "properties"),
             {
               row: 1, margin: 3, stretch: go.GraphObject.Fill,
@@ -153,8 +154,145 @@ function init() {
             new go.Binding("visible", "methods", function(arr) { return arr.length > 0; }))
         )
       )
-    );
-      
+	);
+	
+	var highLevelEntity = "highLevelEntity";
+	    myDiagram.nodeTemplateMap.add(highLevelEntity, 
+      $(go.Node, "Auto", new go.Binding("visible", "entityVisibility"),
+        {
+		  visible:true,
+          locationSpot: go.Spot.Center,
+          fromSpot: go.Spot.AllSides,
+          toSpot: go.Spot.AllSides
+        },
+		 
+		{
+        contextMenu:     // define a context menu for each node
+          $(go.Adornment, "Vertical",  // that has one button
+            $("ContextMenuButton",
+              $(go.TextBlock, "hide"),
+              {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand}),
+			$("ContextMenuButton",
+              $(go.TextBlock, "expand"),
+              {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand})
+          )  
+		},
+        $(go.Shape, { fill: "lightgreen" },
+		new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightgreen"; }).ofObject()),
+        $(go.Panel, "Table",
+          { defaultRowSeparatorStroke: "black" },
+          // header
+          $(go.TextBlock,
+            {
+              row: 0, columnSpan: 2, margin: 3, alignment: go.Spot.Center,
+              font: "bold 12pt sans-serif",
+              isMultiline: false, editable: true
+            },
+            new go.Binding("text", "name").makeTwoWay()),
+          // properties
+          $(go.TextBlock, "Properties",
+            { row: 1, font: "italic 10pt sans-serif" },
+            new go.Binding("visible", "visible", function(v) { return !v; }).ofObject("PROPERTIES")),
+          $(go.Panel, "Vertical", { name: "PROPERTIES" },
+			new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightgreen"; }).ofObject(),
+            new go.Binding("itemArray", "properties"),
+            {
+              row: 1, margin: 3, stretch: go.GraphObject.Fill,
+              defaultAlignment: go.Spot.Left,
+              itemTemplate: propertyTemplate
+            }
+          ),
+          $("PanelExpanderButton", "PROPERTIES",
+            { row: 1, column: 1, alignment: go.Spot.TopRight, visible: false },
+            new go.Binding("visible", "properties", function(arr) { return arr.length > 0; })),
+          // methods
+          $(go.TextBlock, "Methods",
+            { row: 2, font: "italic 10pt sans-serif" },
+            new go.Binding("visible", "visible", function(v) { return !v; }).ofObject("METHODS")),
+          $(go.Panel, "Vertical", { name: "METHODS" },
+            new go.Binding("itemArray", "methods"),
+            {
+              row: 2, margin: 3, stretch: go.GraphObject.Fill,
+              defaultAlignment: go.Spot.Left, background: "lightyellow",
+              itemTemplate: methodTemplate
+            }
+          ),
+          $("PanelExpanderButton", "METHODS",
+            { row: 2, column: 1, alignment: go.Spot.TopRight, visible: false },
+            new go.Binding("visible", "methods", function(arr) { return arr.length > 0; }))
+        )
+      )
+	);
+	
+	
+	var highLevelRelationship = "highLevelRelationship";
+	    myDiagram.nodeTemplateMap.add(highLevelRelationship, 
+      $(go.Node, "Auto", new go.Binding("visible", "entityVisibility"),
+        {
+		  visible:true,
+          locationSpot: go.Spot.Center,
+          fromSpot: go.Spot.AllSides,
+          toSpot: go.Spot.AllSides
+        },
+		 
+		{
+        contextMenu:     // define a context menu for each node
+          $(go.Adornment, "Vertical",  // that has one button
+            $("ContextMenuButton",
+              $(go.TextBlock, "hide"),
+              {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand}),
+			$("ContextMenuButton",
+              $(go.TextBlock, "expand"),
+              {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand})
+          )  
+		},
+        $(go.Shape, { fill: "lightblue" },
+		new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightblue"; }).ofObject()),
+        $(go.Panel, "Table",
+          { defaultRowSeparatorStroke: "black" },
+          // header
+          $(go.TextBlock,
+            {
+              row: 0, columnSpan: 2, margin: 3, alignment: go.Spot.Center,
+              font: "bold 12pt sans-serif",
+              isMultiline: false, editable: false
+            },
+            new go.Binding("text", "name").makeTwoWay()),
+          // properties
+          $(go.TextBlock, "Properties",
+            { row: 1, font: "italic 10pt sans-serif" },
+            new go.Binding("visible", "visible", function(v) { return !v; }).ofObject("PROPERTIES")),
+          $(go.Panel, "Vertical", { name: "PROPERTIES" },
+			new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightblue"; }).ofObject(),
+            new go.Binding("itemArray", "properties"),
+            {
+              row: 1, margin: 3, stretch: go.GraphObject.Fill,
+              defaultAlignment: go.Spot.Left,
+              itemTemplate: propertyTemplate
+            }
+          ),
+          $("PanelExpanderButton", "PROPERTIES",
+            { row: 1, column: 1, alignment: go.Spot.TopRight, visible: false },
+            new go.Binding("visible", "properties", function(arr) { return arr.length > 0; })),
+          // methods
+          $(go.TextBlock, "Methods",
+            { row: 2, font: "italic 10pt sans-serif" },
+            new go.Binding("visible", "visible", function(v) { return !v; }).ofObject("METHODS")),
+          $(go.Panel, "Vertical", { name: "METHODS" },
+            new go.Binding("itemArray", "methods"),
+            {
+              row: 2, margin: 3, stretch: go.GraphObject.Fill,
+              defaultAlignment: go.Spot.Left, background: "lightyellow",
+              itemTemplate: methodTemplate
+            }
+          ),
+          $("PanelExpanderButton", "METHODS",
+            { row: 2, column: 1, alignment: go.Spot.TopRight, visible: false },
+            new go.Binding("visible", "methods", function(arr) { return arr.length > 0; }))
+        )
+      )
+	);
+  	  
   // This function was provided by GoJS templates
   function convertIsTreeLink(r) {
     return r === "generalization";
@@ -188,15 +326,21 @@ function init() {
     xmlHttp_tabledata.onreadystatechange = function() { 
       if (xmlHttp_tabledata.readyState == 4 && xmlHttp_tabledata.status == 200) {
             data = JSON.parse(xmlHttp_tabledata.responseText);
-            var nodedata = []
-            console.log(JSON.stringify(data.tables));
-            for (var i in data.tables)
-            {
-                var table_data = data.tables[i]
-                lister.unshift(table_data.name);
-                table_data.category = entityNodeCategory;
-                nodedata.push(table_data);
-            }
+			var nodedata = []
+			console.log(JSON.stringify(data.tables));
+			for (var i in data.tables)
+			{
+				var tableData = data.tables[i]
+				lister.unshift(tableData.name);
+				//These should be set when we know the properties of the javascript object being passed in
+				//if(tableData.category=="lowLevelEntity")
+				//	tableData.category = lowLevelEntity;
+				//else if(tableData.category=="highLevelEntity")
+				//	tableData.category = highLevelEntity;
+				//else if(tableData.category=="highLevelRelationship")
+					tableData.category = highLevelRelationship;
+				nodedata.push(tableData);
+			}
             var linkdata = data.links;
             myDiagram.model = $(go.GraphLinksModel,
               {
@@ -205,7 +349,7 @@ function init() {
                 nodeDataArray: nodedata,
                 linkDataArray: linkdata
               });
-      }
+  	  }
     } //end onreadystatechange
   
   xmlHttp_tabledata.open("GET", "/tabledata", true); // true for asynchronous 
@@ -340,4 +484,4 @@ function searchDiagram() {  // called by button
   }
 
   myDiagram.commitTransaction("highlight search");
-} //end searchDiagram
+} //end searchDiagram 
