@@ -67,7 +67,7 @@ function updateJson(){
 	 var updateData = new XMLHttpRequest();
      updateData.open("POST", "/addproject", true); // true for asynchronous 
 	 updateData.setRequestHeader('Content-Type', 'application/json');
-	 updateData.send(JSON.stringify(project),"test");
+	 updateData.send(JSON.stringify(project));
 } //end updateJson
 
 
