@@ -373,6 +373,7 @@ function exportImage(){
 } 
 
 function save(){
+
 	saved.database = data.database;
 	saved.data = myDiagram.model.nodeDataArray;
 	for(var i=0;i<saved.data.length;i++){
@@ -384,6 +385,8 @@ function save(){
     saveData.open("POST", "/saveproject", true); 
 	saveData.setRequestHeader('Content-Type', 'application/json');
 	saveData.send(JSON.stringify(saved));
+
+  alert("Your project has been saved");
 }
 
 //hide all entities
