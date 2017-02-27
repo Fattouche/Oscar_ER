@@ -138,22 +138,7 @@ function init() {
           ),
           $("PanelExpanderButton", "PROPERTIES",
             { row: 1, column: 1, alignment: go.Spot.TopRight, visible: false },
-            new go.Binding("visible", "properties", function(arr) { return arr.length > 0; })),
-          // methods
-          $(go.TextBlock, "Methods",
-            { row: 2, font: "italic 10pt sans-serif" },
-            new go.Binding("visible", "visible", function(v) { return !v; }).ofObject("METHODS")),
-          $(go.Panel, "Vertical", { name: "METHODS" },
-            new go.Binding("itemArray", "methods"),
-            {
-              row: 2, margin: 3, stretch: go.GraphObject.Fill,
-              defaultAlignment: go.Spot.Left, background: "lightyellow",
-              itemTemplate: methodTemplate
-            }
-          ),
-          $("PanelExpanderButton", "METHODS",
-            { row: 2, column: 1, alignment: go.Spot.TopRight, visible: false },
-            new go.Binding("visible", "methods", function(arr) { return arr.length > 0; }))
+            new go.Binding("visible", "properties", function(arr) { return arr.length > 0; }))
         )
       )
 	);
@@ -206,22 +191,9 @@ function init() {
           ),
           $("PanelExpanderButton", "PROPERTIES",
             { row: 1, column: 1, alignment: go.Spot.TopRight, visible: false },
-            new go.Binding("visible", "properties", function(arr) { return arr.length > 0; })),
-          // methods
-          $(go.TextBlock, "Methods",
-            { row: 2, font: "italic 10pt sans-serif" },
-            new go.Binding("visible", "visible", function(v) { return !v; }).ofObject("METHODS")),
-          $(go.Panel, "Vertical", { name: "METHODS" },
-            new go.Binding("itemArray", "methods"),
-            {
-              row: 2, margin: 3, stretch: go.GraphObject.Fill,
-              defaultAlignment: go.Spot.Left, background: "lightyellow",
-              itemTemplate: methodTemplate
-            }
-          ),
-          $("PanelExpanderButton", "METHODS",
-            { row: 2, column: 1, alignment: go.Spot.TopRight, visible: false },
-            new go.Binding("visible", "methods", function(arr) { return arr.length > 0; }))
+            new go.Binding("visible", "properties", function(arr) { 
+				return arr.length > 0; 
+			}))
         )
       )
 	);
@@ -275,22 +247,7 @@ function init() {
           ),
           $("PanelExpanderButton", "PROPERTIES",
             { row: 1, column: 1, alignment: go.Spot.TopRight, visible: false },
-            new go.Binding("visible", "properties", function(arr) { return arr.length > 0; })),
-          // methods
-          $(go.TextBlock, "Methods",
-            { row: 2, font: "italic 10pt sans-serif" },
-            new go.Binding("visible", "visible", function(v) { return !v; }).ofObject("METHODS")),
-          $(go.Panel, "Vertical", { name: "METHODS" },
-            new go.Binding("itemArray", "methods"),
-            {
-              row: 2, margin: 3, stretch: go.GraphObject.Fill,
-              defaultAlignment: go.Spot.Left, background: "lightyellow",
-              itemTemplate: methodTemplate
-            }
-          ),
-          $("PanelExpanderButton", "METHODS",
-            { row: 2, column: 1, alignment: go.Spot.TopRight, visible: false },
-            new go.Binding("visible", "methods", function(arr) { return arr.length > 0; }))
+            new go.Binding("visible", "properties", function(arr) { return arr.length > 0; }))
         )
       )
 	);
