@@ -67,7 +67,7 @@ function updateJson(){
 	 var updateData = new XMLHttpRequest();
      updateData.open("POST", "/addproject", true); // true for asynchronous 
 	 updateData.setRequestHeader('Content-Type', 'application/json');
-	 updateData.send(JSON.stringify(project));
+	 updateData.send(JSON.stringify(project),"test");
 } //end updateJson
 
 
@@ -88,7 +88,7 @@ function createTable(){
   while(table.hasChildNodes())
       table.removeChild(table.firstChild);
 
-    //create a new row for each project 
+    //create a new row for each project 	
   for(var i = 0; i < Object.keys(project["projectData"]).length; i++){
     var newrow = table.insertRow(i);
     if(i%2 == 0)

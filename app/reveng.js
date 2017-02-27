@@ -47,7 +47,7 @@ class Revenger{
 
 
   getData(res){
-    res.json({tables: this.tables, links: this.links})
+    res.json({tables: this.tables, links: this.links, database:this.databasename})
   } //end getData
 
   

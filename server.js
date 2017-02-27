@@ -30,6 +30,22 @@ app.post('/addproject', function(req, res) {
 	});
 });
 
+app.post('/saveproject', function(req, res) {
+	var json = JSON.parse(fs.readFileSync("app/projectData.json").toString());
+	for(var i=0;i<json.projectData.length;i++){
+		if(req.body.database==json.projectData[i].database){
+			if(req.body.level=="HIGH"){
+				json.projectData[i].highLevel = req.body.data;
+			}else{
+				json.projectData[i].lowLevel = req.body.data;
+			}
+		}
+	}
+	fs.writeFile ("app/projectData.json", JSON.stringify(json), function(err) {
+	    if (err) throw err;
+	});
+});
+
 app.post('/connect', function(req, res) {
 	Revenger = new reveng.Revenger(res, mysql, req.body.host, req.body.port, req.body.user, req.body.password, req.body.database);
 });

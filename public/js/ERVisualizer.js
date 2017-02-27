@@ -1,10 +1,12 @@
 
 var lister=[];
 var myDiagram;
+var saved = {};
 
 function init() {
   if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
     var $ = go.GraphObject.make;
+	saved.level = "HIGH";
 
   myDiagram =
     $(go.Diagram, "myDiagramDiv",
@@ -118,7 +120,7 @@ function init() {
             {
               row: 0, columnSpan: 2, margin: 3, alignment: go.Spot.Center,
               font: "bold 12pt sans-serif",
-              isMultiline: false, editable: true
+              isMultiline: false, editable: false
             },
             new go.Binding("text", "name").makeTwoWay()),
           // properties
@@ -255,7 +257,7 @@ function init() {
             {
               row: 0, columnSpan: 2, margin: 3, alignment: go.Spot.Center,
               font: "bold 12pt sans-serif",
-              isMultiline: false, editable: false
+              isMultiline: false, editable: true
             },
             new go.Binding("text", "name").makeTwoWay()),
           // properties
@@ -327,7 +329,6 @@ function init() {
       if (xmlHttp_tabledata.readyState == 4 && xmlHttp_tabledata.status == 200) {
             data = JSON.parse(xmlHttp_tabledata.responseText);
 			var nodedata = []
-			console.log(JSON.stringify(data.tables));
 			for (var i in data.tables)
 			{
 				var tableData = data.tables[i]
@@ -336,9 +337,9 @@ function init() {
 				//if(tableData.category=="lowLevelEntity")
 				//	tableData.category = lowLevelEntity;
 				//else if(tableData.category=="highLevelEntity")
-				//	tableData.category = highLevelEntity;
+					tableData.category = highLevelEntity;
 				//else if(tableData.category=="highLevelRelationship")
-					tableData.category = highLevelRelationship;
+				//	tableData.category = highLevelRelationship;
 				nodedata.push(tableData);
 			}
             var linkdata = data.links;
@@ -359,18 +360,31 @@ function init() {
       $(go.Overview, "myOverviewDiv",  // the HTML DIV element for the Overview
         { observed: myDiagram, contentAlignment: go.Spot.Center }); 
 
-} //end init
+  } //end init
   
 function exportImage(){
     var img = myDiagram.makeImage({
         background: "rgba(255,255, 255, 255)",
-        scale:1
     });  
     var a  = document.createElement('a');
     a.href = img.src;
     a.download = 'ERScreenShot.png';
     a.click();
 } 
+
+function save(){
+	saved.database = data.database;
+	saved.data = myDiagram.model.nodeDataArray;
+	for(var i=0;i<saved.data.length;i++){
+		var node = myDiagram.findNodeForData(saved.data[i]);
+		var loc = node.location.copy();
+		saved.data[i].loc = loc;
+	}
+	var saveData = new XMLHttpRequest();
+    saveData.open("POST", "/saveproject", true); 
+	saveData.setRequestHeader('Content-Type', 'application/json');
+	saveData.send(JSON.stringify(saved));
+}
 
 //hide all entities
 function hideAll(){
@@ -448,6 +462,7 @@ function ChangeLayout(){
   switch(layout){
     case "force-directed":
       myDiagram.layout = new go.ForceDirectedLayout();
+	  myDiagram.model.layout = "ForceDirected";
       break;
     case "circular": 
       myDiagram.layout = new go.CircularLayout();
