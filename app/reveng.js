@@ -12,6 +12,7 @@ class Revenger{
     this.databasename = database;
     this.links = [];
     this.tables = {};
+	this.data = null;
     this.db.connect(function(err) {
       if (err){
         res.json({connect: false});
@@ -47,7 +48,7 @@ class Revenger{
 
 
   getData(res){
-    res.json({tables: this.tables, links: this.links, database:this.databasename})
+    res.json({tables: this.tables, links: this.links, database:this.databasename, data:this.data})
   } //end getData
 
   

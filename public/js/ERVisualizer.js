@@ -13,11 +13,10 @@ function init() {
       {
 	"toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
         initialContentAlignment: go.Spot.Center,
-	  initialDocumentSpot: go.Spot.TopCenter,
+		initialDocumentSpot: go.Spot.TopCenter,
         "undoManager.isEnabled": true,
-	  initialViewportSpot: go.Spot.Center,
-	  initialAutoScale: go.Diagram.Uniform,
-        layout: $(go.GridLayout)
+		initialViewportSpot: go.Spot.Center,
+		initialAutoScale: go.Diagram.Uniform,
       });
   		
   myDiagram.nodeTemplateMap = new go.Map("string", go.Node);
@@ -99,7 +98,7 @@ function init() {
           fromSpot: go.Spot.AllSides,
           toSpot: go.Spot.AllSides
         },
-		 
+		  new go.Binding("location", "loc", go.Point.parse),
 		{
         contextMenu:     // define a context menu for each node
           $(go.Adornment, "Vertical",  // that has one button
@@ -152,7 +151,7 @@ function init() {
           fromSpot: go.Spot.AllSides,
           toSpot: go.Spot.AllSides
         },
-		 
+		 new go.Binding("location", "loc", go.Point.parse),
 		{
         contextMenu:     // define a context menu for each node
           $(go.Adornment, "Vertical",  // that has one button
@@ -164,8 +163,8 @@ function init() {
               {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand})
           )  
 		},
-        $(go.Shape, { fill: "lightgreen" },
-		new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightgreen"; }).ofObject()),
+        $(go.Shape, { fill: "lightsalmon" },
+		new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightsalmon"; }).ofObject()),
         $(go.Panel, "Table",
           { defaultRowSeparatorStroke: "black" },
           // header
@@ -181,7 +180,7 @@ function init() {
             { row: 1, font: "italic 10pt sans-serif" },
             new go.Binding("visible", "visible", function(v) { return !v; }).ofObject("PROPERTIES")),
           $(go.Panel, "Vertical", { name: "PROPERTIES" },
-			new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightgreen"; }).ofObject(),
+			new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightsalmon"; }).ofObject(),
             new go.Binding("itemArray", "properties"),
             {
               row: 1, margin: 3, stretch: go.GraphObject.Fill,
@@ -208,7 +207,7 @@ function init() {
           fromSpot: go.Spot.AllSides,
           toSpot: go.Spot.AllSides
         },
-		 
+		  new go.Binding("location", "loc", go.Point.parse),
 		{
         contextMenu:     // define a context menu for each node
           $(go.Adornment, "Vertical",  // that has one button
@@ -284,28 +283,34 @@ function init() {
     var xmlHttp_tabledata = new XMLHttpRequest();
     xmlHttp_tabledata.onreadystatechange = function() { 
       if (xmlHttp_tabledata.readyState == 4 && xmlHttp_tabledata.status == 200) {
+			var nodeData = []
+			var linkData = []
             data = JSON.parse(xmlHttp_tabledata.responseText);
-			var nodedata = []
-			for (var i in data.tables)
-			{
-				var tableData = data.tables[i]
-				lister.unshift(tableData.name);
-				//These should be set when we know the properties of the javascript object being passed in
-				//if(tableData.category=="lowLevelEntity")
-				//	tableData.category = lowLevelEntity;
-				//else if(tableData.category=="highLevelEntity")
-					tableData.category = highLevelEntity;
-				//else if(tableData.category=="highLevelRelationship")
-				//	tableData.category = highLevelRelationship;
-				nodedata.push(tableData);
+			if(data.data!=null){
+				nodeData = data.data.highLevelNode;
+				linkData = data.data.highLevelLink;
+			}else{
+				for (var i in data.tables)
+				{
+					var tableData = data.tables[i]
+					lister.unshift(tableData.name);
+					//These should be set when we know the properties of the javascript object being passed in
+					//if(tableData.category=="lowLevelEntity")
+					//	tableData.category = lowLevelEntity;
+					//else if(tableData.category=="highLevelEntity")
+						tableData.category = highLevelEntity;
+					//else if(tableData.category=="highLevelRelationship")
+					//	tableData.category = highLevelRelationship;
+					nodeData.push(tableData);
+				}
+				 linkData = data.links;
 			}
-            var linkdata = data.links;
             myDiagram.model = $(go.GraphLinksModel,
               {
                 copiesArrays: true,
                 copiesArrayObjects: true,
-                nodeDataArray: nodedata,
-                linkDataArray: linkdata
+                nodeDataArray: nodeData,
+                linkDataArray: linkData
               });
   	  }
     } //end onreadystatechange
@@ -330,20 +335,19 @@ function exportImage(){
 } 
 
 function save(){
-
 	saved.database = data.database;
-	saved.data = myDiagram.model.nodeDataArray;
-	for(var i=0;i<saved.data.length;i++){
-		var node = myDiagram.findNodeForData(saved.data[i]);
+	saved.linkData = myDiagram.model.linkDataArray;
+	saved.nodeData = myDiagram.model.nodeDataArray;
+	for(var i=0;i<saved.nodeData.length;i++){
+		var node = myDiagram.findNodeForData(saved.nodeData[i]);
 		var loc = node.location.copy();
-		saved.data[i].loc = loc;
+		saved.nodeData[i].loc = loc.x+" "+loc.y;
 	}
 	var saveData = new XMLHttpRequest();
     saveData.open("POST", "/saveproject", true); 
 	saveData.setRequestHeader('Content-Type', 'application/json');
 	saveData.send(JSON.stringify(saved));
-
-  alert("Your project has been saved");
+	alert("Your project has been saved");
 }
 
 //hide all entities

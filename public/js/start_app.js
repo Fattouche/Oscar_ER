@@ -14,7 +14,7 @@ function start() {
               xmlHttp_start.onreadystatechange = function() { 
                   if (xmlHttp_start.readyState == 4 && xmlHttp_start.status == 200){
                     console.log(xmlHttp_start.responseText);
-                    window.location.href = "/graph.html";
+					window.location.href = "/graph.html";
                   }
                 }
               xmlHttp_start.open("POST", "/start", true)
@@ -39,6 +39,7 @@ function start() {
         p_user = project["projectData"][i]["user"];
         p_password = project["projectData"][i]["password"];
         p_database = project["projectData"][i]["database"];
+	
         projectSelected = true;
       }
       else if(table.rows[i].cells[0].childNodes[0].checked == true && projectSelected == true){
@@ -46,7 +47,8 @@ function start() {
         return;
       }   
     }
-
+	
+		
     if(projectSelected == false){
       alert("Select a single project or create a new project to start")
       return;
