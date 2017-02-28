@@ -105,7 +105,7 @@ function init() {
             $("ContextMenuButton",
               $(go.TextBlock, "hide"),
               {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand}),
-			$("ContextMenuButton",
+			      $("ContextMenuButton",
               $(go.TextBlock, "expand"),
               {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand})
           )  
@@ -124,11 +124,11 @@ function init() {
             new go.Binding("text", "name").makeTwoWay()),
           // properties
           $(go.TextBlock, "Properties",
-            { row: 1, font: "italic 10pt sans-serif" },
-            new go.Binding("visible", "visible", function(v) { return !v; }).ofObject("PROPERTIES")),
+              { row: 1, font: "italic 10pt sans-serif" },
+              new go.Binding("visible", "visible", function(v) { return !v; }).ofObject("PROPERTIES")),
           $(go.Panel, "Vertical", { name: "PROPERTIES" },
-			new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightyellow"; }).ofObject(),
-            new go.Binding("itemArray", "properties"),
+			       new go.Binding("fill", "isHighlighted", function(h) { return h ? "#00FF00" : "lightyellow"; }).ofObject(),
+              new go.Binding("itemArray", "properties"),
             {
               row: 1, margin: 3, stretch: go.GraphObject.Fill,
               defaultAlignment: go.Spot.Left,
@@ -136,7 +136,7 @@ function init() {
             }
           ),
           $("PanelExpanderButton", "PROPERTIES",
-            { row: 1, column: 1, alignment: go.Spot.TopRight, visible: false },
+            { row: 1, column: 1, alignment: go.Spot.TopRight, visible: true },
             new go.Binding("visible", "properties", function(arr) { return arr.length > 0; }))
         )
       )
@@ -187,7 +187,8 @@ function init() {
               defaultAlignment: go.Spot.Left,
               itemTemplate: propertyTemplate
             }
-          ),
+          )
+          ,
           $("PanelExpanderButton", "PROPERTIES",
             { row: 1, column: 1, alignment: go.Spot.TopRight, visible: false },
             new go.Binding("visible", "properties", function(arr) { 
@@ -243,7 +244,8 @@ function init() {
               defaultAlignment: go.Spot.Left,
               itemTemplate: propertyTemplate
             }
-          ),
+          )
+          ,
           $("PanelExpanderButton", "PROPERTIES",
             { row: 1, column: 1, alignment: go.Spot.TopRight, visible: false },
             new go.Binding("visible", "properties", function(arr) { return arr.length > 0; }))
@@ -321,6 +323,11 @@ function init() {
   var myOverview =
       $(go.Overview, "myOverviewDiv",  // the HTML DIV element for the Overview
         { observed: myDiagram, contentAlignment: go.Spot.Center }); 
+
+
+
+
+
 
   } //end init
   
@@ -464,3 +471,45 @@ function searchDiagram() {  // called by button
 
   myDiagram.commitTransaction("highlight search");
 } //end searchDiagram 
+
+
+function hideAttributes(){
+  var toggleButton = document.getElementById("attributeToggle");
+
+  if(toggleButton.innerHTML == "Show Attributes"){
+    showAttributes();
+    toggleButton.innerHTML = "Hide Attributes"
+    return;
+  }
+
+  toggleButton.innerHTML = "Show Attributes";
+  
+  myDiagram.startTransaction("hideAllAttributes");
+
+  // get an iterator for all nodes
+  var itr = myDiagram.nodes;
+  while (itr.next()) {
+    var node = itr.value;
+    var properties = node.findObject("PROPERTIES");
+    console.log(properties);
+    properties.visible = false;
+  }
+  myDiagram.commitTransaction("hideAllAttributes");
+}//end hideAttributes
+
+
+function showAttributes(){
+   myDiagram.startTransaction("showAllAttributes");
+
+  // get an iterator for all nodes
+  var itr = myDiagram.nodes;
+  while (itr.next()) {
+    var node = itr.value;
+    var properties = node.findObject("PROPERTIES");
+    console.log(properties);
+    properties.visible = true;
+  }
+  myDiagram.commitTransaction("showAllAttributes");
+}//end showAttributes
+
+

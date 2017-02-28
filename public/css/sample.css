@@ -182,10 +182,10 @@ input {
 }
 
 .myButton{
-   font: normal normal normal 12px courier new;
-   padding: 14px 27px;
+   font: normal normal normal 10px courier new;
+   padding: 13px 25px;
    margin-bottom: 10px;
-   margin-left: 10px;
+   margin-left: 6px;
 }
 
 .myButton:hover, .entityButton:hover {

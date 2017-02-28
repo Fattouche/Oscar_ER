@@ -42,13 +42,13 @@
 		  <option value="layered-digraph">Layered Digraph Layout</option>
 		  <option value="tree">Tree Layout</option>
 		</select>
-		<button type="button" class="myButton" onclick="showAll()">Show All Entities</button>
-		<button type="button" class="myButton" onclick="hideAll()">Hide All Entities</button>
+		<button type="button" class="myButton" onclick="showAll()">Show Entities</button>
+		<button type="button" class="myButton" onclick="hideAll()">Hide Entities</button>
+		<button id = "attributeToggle" onclick="hideAttributes()" class = "myButton" >Hide Attributes</button>
 		<button type="button" class="myButton" onclick="exportImage()">Export Image</button>
 		<button type="button" class="myButton" onclick="save()">Save</button>
 		<input placeholder = "Search for an Entity.." type="search" id="mySearch" onkeypress="if (event.keyCode === 13) searchDiagram()" />
-		<button onclick="searchDiagram()" class = "myButton" >Find</button>
-
+		<button onclick="searchDiagram()" class = "myButton" >Find</button>	
 	</div>
 
 
