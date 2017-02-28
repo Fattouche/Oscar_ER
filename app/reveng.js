@@ -127,12 +127,15 @@ class Revenger{
                           self.tables[tableName].primary_keys.push(primaryKeyName);
                         }                      
                         if (res) {
+                          self._resolveNames();
+                          // for debugging //
                           console.log("Primary Keys:");
                           for (var i in self.tables)
                           {
                             console.log(self.tables[i].key);
                             console.log(self.tables[i].primary_keys);
                           }
+                          // end debugging //
                           self.getAllForeignKeys(res);
                         }
                      } else {
@@ -171,7 +174,32 @@ class Revenger{
     ); //end SELECT query
   } //end getAllForeignKeys
 
-  
+  _resolveNames() {
+    var self = this;
+    for (var i in self.tables)
+    {
+      var table_primary_keys = self.tables[i].primary_keys;
+      for (var j in table_primary_keys)
+      {
+        var curr_primary_key = table_primary_keys[j];
+        
+          // hardcode name modifications, since this step is based on the database
+          // primary keys (algorithm says this step relies on documentation/knowledge
+          // of the specific database)
+        if (curr_primary_key == "id")
+        {
+          var name_to_append = self.tables[i].name;
+          
+          if (name_to_append.slice(-1) == 's' &&
+              !(name_to_append.slice(-6) == "status")) {
+            name_to_append = name_to_append.slice(0, -1);
+          }
+          
+          table_primary_keys[j] = name_to_append + "_id";
+        }
+      }
+    }
+  }
   
 } //end class Revenger
 
