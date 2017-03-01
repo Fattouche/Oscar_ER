@@ -243,42 +243,69 @@ class Revenger{
   abstractER(res){
     // Step 1 and 2
     var tableslist = [];
-    for (var key in this.tables){
-      tableslist.push(this.tables[key])
+    for (var i in this.tables){
+      tableslist.push(this.tables[i])
     }
 
     var disjoint = false;
     var remaining_rels = tableslist.slice();
     this.orderAscPk(tableslist)
+    
+    // FOR DEBUGGING //
+    console.log();
+    console.log("tableslist:");
+    for (var i in tableslist)
+    {
+      console.log("{ " + tableslist[i].name + ", [" + tableslist[i].primary_keys + "] }")
+    }
+    // END DEBUGGING //
+    
     var ordered_rels = tableslist;
     var cluster = [];
+    for (var i in tableslist) {
+      cluster.push([]);
+    }
     var nes = 0;
     var nas = 0;
-
-    cluster.push(ordered_rels[0]);
+    
+    cluster[nes].push(ordered_rels[0]);
     remaining_rels.shift();
 
-    for (var i = 1; i < ordered_rels.length; i++){
+    for (var i = 1; i < ordered_rels.length; i++) {
       var R = ordered_rels[i];
       if (this._pkCmp(R, ordered_rels[i-1]) == 0){
-        cluster[nes] = R;
+        cluster[nes].push(R);
         remaining_rels.filter(function (x) {x["key"] !== R["key"]});
       }
       else {
         disjoint = true;
-        for (var s = 0; s < cluster.length; s++){
-          if(this._pkIsShareSet(R, cluster[s])){
+        for (var s = 0; s < nes; s++) {
+          if (this._pkIsShareSet(R, cluster[s][0])) {
             disjoint = false;
           }
         }
         if (disjoint){
           nes++;
-          cluster.push(R);
+          cluster[nes].push(R);
           remaining_rels.filter(function (x) {x["key"] !== R["key"]});
         }
       }
     }
-    //console.log(cluster);
+    
+    // FOR DEBUGGING //
+    console.log();
+    console.log("cluster: " );
+    for (var i in cluster)
+    {
+      var string = "[ ";
+      for (var j in cluster[i])
+      {
+        string = string + cluster[i][j].name + ", ";
+      }
+      string = string + "]";
+      console.log(string);
+    }
+    // END DEBUGGING //
 
     res.send(null);
   }
