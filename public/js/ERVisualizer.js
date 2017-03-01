@@ -4,6 +4,8 @@ var myDiagram;
 var saved = {};
 
 function init() {
+
+
   if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
     var $ = go.GraphObject.make;
 	saved.level = "HIGH";
@@ -315,10 +317,13 @@ function init() {
                 linkDataArray: linkData
               });
   	  }
+      checkVisibility();
     } //end onreadystatechange
   
   xmlHttp_tabledata.open("GET", "/tabledata", true); // true for asynchronous 
   xmlHttp_tabledata.send(null);
+
+  
   
   var myOverview =
       $(go.Overview, "myOverviewDiv",  // the HTML DIV element for the Overview
@@ -326,7 +331,7 @@ function init() {
 
 
 
-
+    
 
 
   } //end init
@@ -402,6 +407,20 @@ function setVisibility(entityName, isSelected) {
     div.appendChild(element);
   }
 } //end setVisibility
+
+function checkVisibility(){
+  myDiagram.startTransaction("checkVisibility");
+  // get an iterator for all nodes
+  var itr = myDiagram.nodes;
+  while (itr.next()) {
+    var node = itr.value;
+    var visibility = node.visible;
+    if(visibility == false){
+        setVisibility(node.data.name, false)
+    }
+  }
+  myDiagram.commitTransaction("checkVisibility");
+}
 
 function cmCommand(e, obj){
   var node = obj.part.adornedPart;
