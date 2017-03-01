@@ -12,6 +12,8 @@ class Revenger{
     this.databasename = database;
     this.links = [];
     this.tables = {};
+    this.ERtables = [];
+    this.ERlinks = [];
 	this.data = null;
     this.db.connect(function(err) {
       if (err){
@@ -129,7 +131,7 @@ class Revenger{
                         if (res) {
                           self._resolveNames();
                           // for debugging //
-                          console.log("Primary Keys:");
+                          //console.log("Primary Keys:");
                           for (var i in self.tables)
                           {
                             console.log(self.tables[i].key);
@@ -165,7 +167,7 @@ class Revenger{
                   }
                 }
                 self.db.end();
-                res.send(null);
+                self.abstractER(res);
               } else {
                 console.log("error: " + err);
                 throw err;
@@ -201,6 +203,84 @@ class Revenger{
     }
   }
   
+  _pkCmp(a,b){
+    for (var i = 0; i < a["primary_keys"].length; i++){
+      var cmp = a["primary_keys"][i].localeCompare(b["primary_keys"][i]);
+      if (cmp !== 0){
+        return cmp;
+      }
+    return cmp;
+    }
+  }
+
+  _pkIsShareSet(a,b){
+    for (var i = 0; i < a["primary_keys"].length; i++){
+      for (var j = 0; j < b["primary_keys"].length; j++){
+        var cmp = a["primary_keys"][i].localeCompare(b["primary_keys"][j]);
+        if (cmp == 0){
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  orderAscPk(s){
+    var self = this;
+    s.sort(function (a, b) {
+      if (a["primary_keys"].length < b["primary_keys"].length){
+        return -1;
+      }
+      else if (a["primary_keys"].length > b["primary_keys"].length){
+        return 1;
+      }
+      else {return self._pkCmp(a,b);
+      }
+    });  
+  }
+
+  abstractER(res){
+    // Step 1 and 2
+    var tableslist = [];
+    for (var key in this.tables){
+      tableslist.push(this.tables[key])
+    }
+
+    var disjoint = false;
+    var remaining_rels = tableslist.slice();
+    this.orderAscPk(tableslist)
+    var ordered_rels = tableslist;
+    var cluster = [];
+    var nes = 0;
+    var nas = 0;
+
+    cluster.push(ordered_rels[0]);
+    remaining_rels.shift();
+
+    for (var i = 1; i < ordered_rels.length; i++){
+      var R = ordered_rels[i];
+      if (this._pkCmp(R, ordered_rels[i-1]) == 0){
+        cluster[nes] = R;
+        remaining_rels.filter(function (x) {x["key"] !== R["key"]});
+      }
+      else {
+        disjoint = true;
+        for (var s = 0; s < cluster.length; s++){
+          if(this._pkIsShareSet(R, cluster[s])){
+            disjoint = false;
+          }
+        }
+        if (disjoint){
+          nes++;
+          cluster.push(R);
+          remaining_rels.filter(function (x) {x["key"] !== R["key"]});
+        }
+      }
+    }
+    //console.log(cluster);
+
+    res.send(null);
+  }
 } //end class Revenger
 
 module.exports = {
