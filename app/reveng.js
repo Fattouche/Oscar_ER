@@ -204,13 +204,23 @@ class Revenger{
   }
   
   _pkCmp(a,b){
+    var aLength = a["primary_keys"].length;
+    var bLength = b["primary_keys"].length;
+    
+    if (aLength < bLength) {
+      return -1;
+    } else if (bLength < aLength) {
+      return 1;
+    }
+    
     for (var i = 0; i < a["primary_keys"].length; i++){
       var cmp = a["primary_keys"][i].localeCompare(b["primary_keys"][i]);
       if (cmp !== 0){
         return cmp;
       }
     }
-    return cmp;
+    
+    return 0;
   }
 
   _pkIsShareSet(a,b){
@@ -227,16 +237,7 @@ class Revenger{
 
   orderAscPk(s){
     var self = this;
-    s.sort(function (a, b) {
-      if (a["primary_keys"].length < b["primary_keys"].length){
-        return -1;
-      }
-      else if (a["primary_keys"].length > b["primary_keys"].length){
-        return 1;
-      }
-      else {return self._pkCmp(a,b);
-      }
-    });  
+    s.sort(function(a, b) { return self._pkCmp(a, b) });  
   }
 
   abstractER(res){
