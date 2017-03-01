@@ -2,6 +2,7 @@
 var lister=[];
 var myDiagram;
 var saved = {};
+var attributesHidden = false;
 
 function init() {
 
@@ -136,10 +137,11 @@ function init() {
               defaultAlignment: go.Spot.Left,
               itemTemplate: propertyTemplate
             }
-          ),
-          $("PanelExpanderButton", "PROPERTIES",
-            { row: 1, column: 1, alignment: go.Spot.TopRight, visible: true },
-            new go.Binding("visible", "properties", function(arr) { return arr.length > 0; }))
+          )
+          // ,
+          // $("PanelExpanderButton", "PROPERTIES",
+          //   { row: 1, column: 1, alignment: go.Spot.TopRight, visible: true },
+          //   new go.Binding("visible", "properties", function(arr) { return arr.length > 0; }))
         )
       )
 	);
@@ -193,12 +195,12 @@ function init() {
               itemTemplate: propertyTemplate
             }
           )
-          ,
-          $("PanelExpanderButton", "PROPERTIES",
-            { row: 1, column: 1, alignment: go.Spot.TopRight, visible: false },
-            new go.Binding("visible", "properties", function(arr) { 
-				return arr.length > 0; 
-			}))
+   //        ,
+   //        $("PanelExpanderButton", "PROPERTIES",
+   //          { row: 1, column: 1, alignment: go.Spot.TopRight, visible: false },
+   //          new go.Binding("visible", "properties", function(arr) { 
+			// 	return arr.length > 0; 
+			// }))
         )
       )
 	);
@@ -253,10 +255,10 @@ function init() {
               itemTemplate: propertyTemplate
             }
           )
-          ,
-          $("PanelExpanderButton", "PROPERTIES",
-            { row: 1, column: 1, alignment: go.Spot.TopRight, visible: false },
-            new go.Binding("visible", "properties", function(arr) { return arr.length > 0; }))
+          // ,
+          // $("PanelExpanderButton", "PROPERTIES",
+          //   { row: 1, column: 1, alignment: go.Spot.TopRight, visible: false },
+          //   new go.Binding("visible", "properties", function(arr) { return arr.length > 0; }))
         )
       )
 	);
@@ -299,6 +301,7 @@ function init() {
 			if(data.data!=null){
 				nodeData = data.data.highLevelNode;
 				linkData = data.data.highLevelLink;
+        attributesHidden = data.data.highLevelHidden;
 			}else{
 				for (var i in data.tables)
 				{
@@ -323,6 +326,9 @@ function init() {
                 linkDataArray: linkData
               });
   	  }
+      if(attributesHidden)
+         hideAttributes();  
+
       checkVisibility();
     } //end onreadystatechange
   
@@ -334,12 +340,6 @@ function init() {
   var myOverview =
       $(go.Overview, "myOverviewDiv",  // the HTML DIV element for the Overview
         { observed: myDiagram, contentAlignment: go.Spot.Center }); 
-
-
-
-    
-
-
   } //end init
   
 function exportImage(){
@@ -356,6 +356,7 @@ function save(){
 	saved.database = data.database;
 	saved.linkData = myDiagram.model.linkDataArray;
 	saved.nodeData = myDiagram.model.nodeDataArray;
+  saved.hidden = attributesHidden;
 	for(var i=0;i<saved.nodeData.length;i++){
 		var node = myDiagram.findNodeForData(saved.nodeData[i]);
 		var loc = node.location.copy();
@@ -420,12 +421,7 @@ function checkVisibility(){
   while (itr.next()) {
     var node = itr.value;
     var visibility = node.visible;
-    //if(visibility == false){
-   //     setVisibility(node.data.name, false)
-   // }else{
-	//	setVisibility(node.data.name, true)
-	//}
-	setVisibility(node.data.name, visibility, node.data);
+	  setVisibility(node.data.name, visibility, node.data);
   }
   myDiagram.commitTransaction("checkVisibility");
 }
@@ -504,7 +500,7 @@ function hideAttributes(){
   }
 
   toggleButton.innerHTML = "Show Attributes";
-  
+  attributesHidden = true;
   myDiagram.startTransaction("hideAllAttributes");
 
   // get an iterator for all nodes
@@ -520,17 +516,18 @@ function hideAttributes(){
 
 
 function showAttributes(){
+   attributesHidden = false;
    myDiagram.startTransaction("showAllAttributes");
 
-  // get an iterator for all nodes
-  var itr = myDiagram.nodes;
-  while (itr.next()) {
-    var node = itr.value;
-    var properties = node.findObject("PROPERTIES");
-    console.log(properties);
-    properties.visible = true;
-  }
-  myDiagram.commitTransaction("showAllAttributes");
+   // get an iterator for all nodes
+   var itr = myDiagram.nodes;
+   while (itr.next()) {
+      var node = itr.value;
+      var properties = node.findObject("PROPERTIES");
+      console.log(properties);
+      properties.visible = true;
+   }
+   myDiagram.commitTransaction("showAllAttributes");
 }//end showAttributes
 
 
