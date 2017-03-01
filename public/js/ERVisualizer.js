@@ -162,6 +162,9 @@ function init() {
               {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand}),
 			$("ContextMenuButton",
               $(go.TextBlock, "expand"),
+              {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand}),
+			$("ContextMenuButton",
+              $(go.TextBlock, "drill"),
               {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand})
           )  
 		},
@@ -219,6 +222,9 @@ function init() {
               {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand}),
 			$("ContextMenuButton",
               $(go.TextBlock, "expand"),
+              {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand}),
+			$("ContextMenuButton",
+              $(go.TextBlock, "drill"),
               {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand})
           )  
 		},
