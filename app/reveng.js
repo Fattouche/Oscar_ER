@@ -209,8 +209,8 @@ class Revenger{
       if (cmp !== 0){
         return cmp;
       }
-    return cmp;
     }
+    return cmp;
   }
 
   _pkIsShareSet(a,b){
