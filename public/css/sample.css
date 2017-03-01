@@ -333,3 +333,29 @@ div.dhtmlx_window_active, div.dhx_modal_cover_dv {
 #right #newProj{
   /*float:left;*/
 }
+
+
+/*hidden entity scrolling menu*/
+.vertical-menu {
+    width: 500px; 
+    height: 150px;
+    overflow-y: auto;
+    margin-bottom: 50px;
+}
+
+.vertical-menu a {
+    background-color: #eee; /* Grey background color */
+    color: black; /* Black text color */
+    display: block; /* Make the links appear below each other */
+    padding: 12px; /* Add some padding */
+    text-decoration: none; /* Remove underline from links */
+}
+
+.vertical-menu a:hover {
+    background-color: #ccc; /* Dark grey background on mouse-over */
+}
+
+.vertical-menu a.active {
+    background-color: #4CAF50; /* Add a green color to the "active/current" link */
+    color: white;
+}

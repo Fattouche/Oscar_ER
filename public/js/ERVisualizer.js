@@ -391,21 +391,15 @@ function setVisibility(entityName, isSelected) {
 
   //if element is not visible, create a checkbox 
   if(isSelected == false){
-    var button = document.createElement('button');
-    button.className = "entityButton";
-    button.textContent = entityName;
-    button.onclick = function(cb) {
-      setVisibility(button.textContent, true);
-      button.parentNode.removeChild(button);
-      label.parentNode.removeChild(label);
-    } 
+    var element = document.createElement('a');
+    element.innerHTML = entityName;
+    element.onclick  = function(cb){
+      setVisibility(element.innerHTML, true);
+      element.parentNode.removeChild(element);
+    }
+    
     var div = document.getElementById("entityList");
-    var label = document.createElement('label')
-    label.htmlFor = "id";
-    label.appendChild(document.createTextNode(button.name));
-     
-    div.appendChild(button);
-    div.appendChild(label);
+    div.appendChild(element);
   }
 } //end setVisibility
 
