@@ -374,7 +374,7 @@ function hideAll(){
   document.getElementById('entityList').innerHTML = "";
   for (var i in nodeDataArray) {
     if (nodeDataArray[i] != undefined) {
-      setVisibility(nodeDataArray[i]["name"], false);
+      setVisibility(nodeDataArray[i]["name"], false, nodeDataArray[i]);
     }
   };
 } //end hideAll
@@ -385,19 +385,18 @@ function showAll(){
   document.getElementById('entityList').innerHTML = "";
   for (var i in nodeDataArray) {
     if (nodeDataArray[i] != undefined) {
-      setVisibility(nodeDataArray[i]["name"], true);
+      setVisibility(nodeDataArray[i]["name"], true, nodeDataArray[i]);
     }
   };
 }//end showAll
 
 //sets visibility
-function setVisibility(entityName, isSelected) {
+function setVisibility(entityName, isSelected, data) {
   myDiagram.model.startTransaction("change_entity_visibility");
-  var data = myDiagram.model.findNodeDataForKey(entityName);
-  if (data != null) 
-  {
-    myDiagram.model.setDataProperty(data, "entityVisibility", isSelected);
+  if(data==null){
+	  data = myDiagram.model.findNodeDataForKey(entityName);
   }
+  myDiagram.model.setDataProperty(data, "entityVisibility", isSelected);
   myDiagram.model.commitTransaction("change_entity_visibility");
 
   //if element is not visible, create a checkbox 
@@ -405,7 +404,7 @@ function setVisibility(entityName, isSelected) {
     var element = document.createElement('a');
     element.innerHTML = entityName;
     element.onclick  = function(cb){
-      setVisibility(element.innerHTML, true);
+      setVisibility(element.innerHTML, true, data);
       element.parentNode.removeChild(element);
     }
     
@@ -421,9 +420,12 @@ function checkVisibility(){
   while (itr.next()) {
     var node = itr.value;
     var visibility = node.visible;
-    if(visibility == false){
-        setVisibility(node.data.name, false)
-    }
+    //if(visibility == false){
+   //     setVisibility(node.data.name, false)
+   // }else{
+	//	setVisibility(node.data.name, true)
+	//}
+	setVisibility(node.data.name, visibility, node.data);
   }
   myDiagram.commitTransaction("checkVisibility");
 }
@@ -432,16 +434,16 @@ function cmCommand(e, obj){
   var node = obj.part.adornedPart;
   var button = obj.elt(1);
   if(button.text=="hide"){
-      setVisibility(node.data.name, false);
+      setVisibility(node.data.name, false, node.data);
   }
   else if(button.text=="expand"){
     for (var i in node.data.incoming_links)
     {
-      setVisibility(node.data.incoming_links[i], true);
+      setVisibility(node.data.incoming_links[i], true, node.data);
     }
     for (var i in node.data.outgoing_links)
     {
-      setVisibility(node.data.outgoing_links[i], true);
+      setVisibility(node.data.outgoing_links[i], true, node.data);
     }
   }
 } //end cmCommand
