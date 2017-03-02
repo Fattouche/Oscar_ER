@@ -248,8 +248,9 @@ class Revenger{
     }
 
     var disjoint = false;
-    var remaining_rels = tableslist.slice();
     this.orderAscPk(tableslist)
+    var ordered_rels = tableslist;
+    var remaining_rels = ordered_rels.slice();
     
     // FOR DEBUGGING //
     console.log();
@@ -260,7 +261,6 @@ class Revenger{
     }
     // END DEBUGGING //
     
-    var ordered_rels = tableslist;
     var cluster = [];
     for (var i in tableslist) {
       cluster.push([]);
@@ -275,7 +275,7 @@ class Revenger{
       var R = ordered_rels[i];
       if (this._pkCmp(R, ordered_rels[i-1]) == 0){
         cluster[nes].push(R);
-        remaining_rels.filter(function (x) {x["key"] !== R["key"]});
+        remaining_rels = remaining_rels.filter(function (x) {return x.name !== R.name});
       }
       else {
         disjoint = true;
@@ -287,7 +287,7 @@ class Revenger{
         if (disjoint){
           nes++;
           cluster[nes].push(R);
-          remaining_rels.filter(function (x) {x["key"] !== R["key"]});
+          remaining_rels = remaining_rels.filter(function (x) {return x.name !== R.name});
         }
       }
     }
@@ -305,6 +305,14 @@ class Revenger{
       string = string + "]";
       console.log(string);
     }
+    console.log("remaining_rels: ");
+    var string = "[ ";
+    for (var i in remaining_rels)
+    {
+      string = string + remaining_rels[i].name + ", ";
+    }
+    string = string + "]";
+    console.log(string);
     // END DEBUGGING //
 
     res.send(null);
