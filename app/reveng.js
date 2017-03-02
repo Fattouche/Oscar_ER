@@ -223,7 +223,7 @@ class Revenger{
     return 0;
   }
 
-  _pkIsShareSet(a,b){
+  _anyPKsShared(a,b){
     for (var i = 0; i < a["primary_keys"].length; i++){
       for (var j = 0; j < b["primary_keys"].length; j++){
         var cmp = a["primary_keys"][i].localeCompare(b["primary_keys"][j]);
@@ -250,7 +250,7 @@ class Revenger{
     var disjoint = false;
     this.orderAscPk(tableslist)
     var ordered_rels = tableslist;
-    var remaining_rels = ordered_rels.slice();
+    var remainingRels = ordered_rels.slice();
     
     // FOR DEBUGGING //
     console.log();
@@ -265,29 +265,28 @@ class Revenger{
     for (var i in tableslist) {
       cluster.push([]);
     }
-    var nes = 0;
-    var nas = 0;
     
-    cluster[nes].push(ordered_rels[0]);
-    remaining_rels.shift();
+    cluster[0].push(ordered_rels[0]);
+    var numberAbstractEntities = 1;
+    remainingRels.shift();
 
     for (var i = 1; i < ordered_rels.length; i++) {
       var R = ordered_rels[i];
       if (this._pkCmp(R, ordered_rels[i-1]) == 0){
-        cluster[nes].push(R);
-        remaining_rels = remaining_rels.filter(function (x) {return x.name !== R.name});
+        cluster[numberAbstractEntities].push(R);
+        remainingRels = remainingRels.filter(function (x) {return x.name !== R.name});
       }
       else {
         disjoint = true;
-        for (var s = 0; s < nes; s++) {
-          if (this._pkIsShareSet(R, cluster[s][0])) {
+        for (var s = 0; s < numberAbstractEntities; s++) {
+          if (this._anyPKsShared(R, cluster[s][0])) {
             disjoint = false;
           }
         }
         if (disjoint){
-          nes++;
-          cluster[nes].push(R);
-          remaining_rels = remaining_rels.filter(function (x) {return x.name !== R.name});
+          cluster[numberAbstractEntities].push(R);
+          numberAbstractEntities++;
+          remainingRels = remainingRels.filter(function (x) {return x.name !== R.name});
         }
       }
     }
@@ -305,11 +304,75 @@ class Revenger{
       string = string + "]";
       console.log(string);
     }
-    console.log("remaining_rels: ");
+    console.log("remainingRels: ");
     var string = "[ ";
-    for (var i in remaining_rels)
+    for (var i in remainingRels)
     {
-      string = string + remaining_rels[i].name + ", ";
+      string = string + remainingRels[i].name + ", ";
+    }
+    string = string + "]";
+    console.log(string);
+    // END DEBUGGING //
+    
+    // Step 3
+    
+    for (var r = 0; r < remainingRels.length; r++)
+    {
+      var relation = remainingRels[r];
+      
+      // This looks a little different than the pseudocode, but does the same thing
+      // while only needing to iterate over each cluster once
+      var i = 0;
+      var isAbstractRelation = false;
+      var foundCluster = -1;
+      
+      while (i < numberAbstractEntities && !isAbstractRelation)
+      {
+        for (var j in cluster[i])
+        {
+          if (this._anyPKsShared(relation, cluster[i][j]))
+          {
+            if (foundCluster === -1)
+            {
+              foundCluster = i;
+              break;
+            }
+            else {
+              // then the primary keys in relation are found in multiple abstract entities
+              isAbstractRelation = true;
+              break;
+            }
+          }
+        }
+        i++;
+      }
+      
+      if (!isAbstractRelation)
+      {
+        cluster[foundCluster].push(relation);
+        remainingRels = remainingRels.filter(function (x) {return x.name !== relation.name});
+        r--;
+      }
+    }
+    
+    // FOR DEBUGGING //
+    console.log();
+    console.log("cluster: " );
+    for (var i in cluster)
+    {
+      var string = "[ ";
+      for (var j in cluster[i])
+      {
+        string = string + cluster[i][j].name + ", ";
+      }
+      string = string + "]";
+      console.log(string);
+    }
+    console.log("remainingRels: ");
+    var string = "[ ";
+    for (var i in remainingRels)
+    {
+      string = string + remainingRels[i].name + ", ";
     }
     string = string + "]";
     console.log(string);
