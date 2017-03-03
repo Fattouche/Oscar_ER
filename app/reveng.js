@@ -129,7 +129,6 @@ class Revenger{
                           self.tables[tableName].primary_keys.push(primaryKeyName);
                         }                      
                         if (res) {
-                          self._resolveNames();
                           // for debugging //
                           //console.log("Primary Keys:");
                           for (var i in self.tables)
@@ -176,6 +175,7 @@ class Revenger{
     ); //end SELECT query
   } //end getAllForeignKeys
 
+  /*
   _resolveNames() {
     var self = this;
     for (var i in self.tables)
@@ -202,6 +202,7 @@ class Revenger{
       }
     }
   }
+  */
   
   _pkCmp(a,b){
     var aLength = a["primary_keys"].length;
@@ -223,13 +224,22 @@ class Revenger{
     return 0;
   }
 
-  _anyPKsShared(a,b){
+  _anyPKsSharedWithRelation(a,b){
     for (var i = 0; i < a["primary_keys"].length; i++){
       for (var j = 0; j < b["primary_keys"].length; j++){
         var cmp = a["primary_keys"][i].localeCompare(b["primary_keys"][j]);
         if (cmp == 0){
           return true;
         }
+      }
+    }
+    return false;
+  }
+  
+  _anyPKsSharedWithAbstractEntity(relation, entity) {
+    for (var i in entity) {
+      if (this._anyPKsSharedWithRelation(relation, entity[i]) === true) {
+        return true;
       }
     }
     return false;
@@ -243,7 +253,7 @@ class Revenger{
   abstractER(res){
     // Step 1 and 2
     var tableslist = [];
-    for (var i in this.tables){
+    for (var i in this.tables) {
       tableslist.push(this.tables[i])
     }
 
@@ -267,26 +277,26 @@ class Revenger{
     }
     
     cluster[0].push(ordered_rels[0]);
-    var numberAbstractEntities = 1;
+    var numAbstractEntities = 1;
     remainingRels.shift();
 
     for (var i = 1; i < ordered_rels.length; i++) {
-      var R = ordered_rels[i];
-      if (this._pkCmp(R, ordered_rels[i-1]) == 0){
-        cluster[numberAbstractEntities].push(R);
-        remainingRels = remainingRels.filter(function (x) {return x.name !== R.name});
+      var relation = ordered_rels[i];
+      if (this._pkCmp(relation, cluster[numAbstractEntities-1][0]) === 0){
+        cluster[numAbstractEntities-1].push(relation);
+        remainingRels = remainingRels.filter(function (x) {return x.name !== relation.name});
       }
       else {
         disjoint = true;
-        for (var s = 0; s < numberAbstractEntities; s++) {
-          if (this._anyPKsShared(R, cluster[s][0])) {
+        for (var s = 0; s < numAbstractEntities; s++) {
+          if (this._anyPKsSharedWithAbstractEntity(relation, cluster[s])) {
             disjoint = false;
           }
         }
-        if (disjoint){
-          cluster[numberAbstractEntities].push(R);
-          numberAbstractEntities++;
-          remainingRels = remainingRels.filter(function (x) {return x.name !== R.name});
+        if (disjoint) {
+          cluster[numAbstractEntities].push(relation);
+          numAbstractEntities++;
+          remainingRels = remainingRels.filter(function (x) {return x.name !== relation.name});
         }
       }
     }
@@ -294,11 +304,9 @@ class Revenger{
     // FOR DEBUGGING //
     console.log();
     console.log("cluster: " );
-    for (var i in cluster)
-    {
+    for (var i in cluster) {
       var string = "[ ";
-      for (var j in cluster[i])
-      {
+      for (var j in cluster[i]) {
         string = string + cluster[i][j].name + ", ";
       }
       string = string + "]";
@@ -306,18 +314,15 @@ class Revenger{
     }
     console.log("remainingRels: ");
     var string = "[ ";
-    for (var i in remainingRels)
-    {
+    for (var i in remainingRels) {
       string = string + remainingRels[i].name + ", ";
     }
     string = string + "]";
     console.log(string);
     // END DEBUGGING //
     
-    // Step 3
-    
-    for (var r = 0; r < remainingRels.length; r++)
-    {
+    // Step 3    
+    for (var r = 0; r < remainingRels.length; r++) {
       var relation = remainingRels[r];
       
       // This looks a little different than the pseudocode, but does the same thing
@@ -326,29 +331,20 @@ class Revenger{
       var isAbstractRelation = false;
       var foundCluster = -1;
       
-      while (i < numberAbstractEntities && !isAbstractRelation)
-      {
-        for (var j in cluster[i])
-        {
-          if (this._anyPKsShared(relation, cluster[i][j]))
-          {
-            if (foundCluster === -1)
-            {
-              foundCluster = i;
-              break;
-            }
-            else {
-              // then the primary keys in relation are found in multiple abstract entities
-              isAbstractRelation = true;
-              break;
-            }
+      while (i < numAbstractEntities && !isAbstractRelation) {
+        if (this._anyPKsSharedWithAbstractEntity(relation, cluster[i])) {
+          if (foundCluster === -1) {
+            foundCluster = i;
+          }
+          else {
+            // then the primary keys in relation are found in multiple abstract entities
+            isAbstractRelation = true;
           }
         }
         i++;
       }
       
-      if (!isAbstractRelation)
-      {
+      if (!isAbstractRelation) {
         cluster[foundCluster].push(relation);
         remainingRels = remainingRels.filter(function (x) {return x.name !== relation.name});
         r--;
@@ -358,11 +354,9 @@ class Revenger{
     // FOR DEBUGGING //
     console.log();
     console.log("cluster: " );
-    for (var i in cluster)
-    {
+    for (var i in cluster) {
       var string = "[ ";
-      for (var j in cluster[i])
-      {
+      for (var j in cluster[i]) {
         string = string + cluster[i][j].name + ", ";
       }
       string = string + "]";
@@ -370,8 +364,100 @@ class Revenger{
     }
     console.log("remainingRels: ");
     var string = "[ ";
-    for (var i in remainingRels)
-    {
+    for (var i in remainingRels) {
+      string = string + remainingRels[i].name + ", ";
+    }
+    string = string + "]";
+    console.log(string);
+    // END DEBUGGING //
+    
+    // Step 4    
+    var argument = [];
+    var intersects = [];
+    var numAbstractRelationships = 0;
+    for (var i = 0; i < tableslist.length; i++) {
+      argument.push([]);
+      for (var j = 0; j < numAbstractEntities; j++) {
+        argument[i].push(false);
+        if (i === 0) {
+          intersects.push(false);
+        }
+      }
+    }
+    var firstRelationship = true;
+    
+    for (var r = 0; r < remainingRels.length; r++) {
+      var relation = remainingRels[r];
+      
+      for (var i = 0; i < numAbstractEntities; i++) {
+        if (this._anyPKsSharedWithAbstractEntity(relation, cluster[i])) {
+          intersects[i] = true;
+        }
+      }
+      
+      if (firstRelationship === true) {
+        for (var i = 0; i < numAbstractEntities; i++) {
+          argument[0][i] = intersects[i];
+        }
+        cluster[numAbstractEntities + numAbstractRelationships].push(relation);
+        numAbstractRelationships++;
+        remainingRels = remainingRels.filter(function (x) {return x.name !== relation.name});
+        r--;
+        firstRelationship = false;
+      } 
+      else {
+        var j = 0;
+        var found = false;
+        
+        while (j < numAbstractRelationships && !found) {
+          var inRelationship = true;
+          
+          for (var i in intersects) {
+            if (intersects[i] !== argument[j][i]) {
+              inRelationship = false;
+              break;
+            }
+          }
+          
+          if (inRelationship) {
+            cluster[numAbstractEntities + j].push(relation);
+            remainingRels = remainingRels.filter(function (x) {return x.name !== relation.name});
+            r--;
+            found = true;
+          }
+          j++;
+          
+        }
+        
+        if (!found) {
+          for (var i = 0; i < numAbstractEntities; i++) {
+            argument[numAbstractRelationships][i] = intersects[i];
+          }
+          cluster[numAbstractEntities + numAbstractRelationships].push(relation);
+          numAbstractRelationships++;
+          remainingRels = remainingRels.filter(function (x) {return x.name !== relation.name});
+          r--;
+        }
+      }
+    }
+    
+    // FOR DEBUGGING //
+    console.log();
+    console.log("END OF ALGORITHM:");
+    console.log("cluster: " );
+    for (var i in cluster) {
+      var string = "[ ";
+      for (var j in cluster[i]) {
+        string = string + cluster[i][j].name + ", ";
+      }
+      string = string + "]";
+      console.log(string);
+    }
+    console.log("numAbstractEntities: " + numAbstractEntities);
+    console.log("numAbstractRelationships: " + numAbstractRelationships);
+    console.log("remainingRels: ");
+    var string = "[ ";
+    for (var i in remainingRels) {
       string = string + remainingRels[i].name + ", ";
     }
     string = string + "]";
