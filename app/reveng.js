@@ -12,9 +12,13 @@ class Revenger{
     this.databasename = database;
     this.links = [];
     this.tables = {};
-    this.ERtables = [];
-    this.ERlinks = [];
-	this.data = null;
+    this.abstractERTables = {};
+    this.abstractERlinks = [];
+    this._cluster;
+    this._argument;
+    this._numAE;
+    this._numAR;
+	  this.data = null;
     this.db.connect(function(err) {
       if (err){
         res.json({connect: false});
@@ -47,10 +51,44 @@ class Revenger{
       { from: 12, to: 11, relationship: "generalization" }
   ]
 */
+  
+  parseAbstractERData(){
+    for (var i = 0; i < this._cluster.length; i++){
+      if (i < this._numAE){
+        var tag = "AE " + (i+1);
+        }
+      else{
+        var tag = "AR " + ((i-this._numAE) + 1);
+      }
+      if (this._cluster[i].length > 0){
+        var newtable = {key: tag,
+                        name: tag,
+                        properties: []
+                       }
+        for (var j = 0; j < this._cluster[i].length; j++){
+          newtable.properties.push({name: this._cluster[i][j].name,
+                                    type: "Table",
+                                    visibility: "public"});
+        }
+        this.abstractERTables[tag] = newtable;
+      }
 
+    }
+    for (var i = 0; i < this._numAR; i++){
+      for (var j = 0; j < this._argument[i].length; j++){
+        if (this._argument[i][j]){
+          this.abstractERlinks.push({from: "AE " + (j+1),
+                                     to: "AR " + (i+1),
+                                     relationship: "generalization"});
+        }
+      }
+    }
+    // console.log(this.abstractERTables);
+    // console.log(this.abstractERlinks);
+  }
 
   getData(res){
-    res.json({tables: this.tables, links: this.links, database:this.databasename, data:this.data})
+    res.json({atables: this.abstractERTables, alinks: this.abstractERlinks, tables: this.tables, links: this.links, database:this.databasename, data:this.data})
   } //end getData
 
   
@@ -453,6 +491,7 @@ class Revenger{
       string = string + "]";
       console.log(string);
     }
+    console.log(argument);
     console.log("numAbstractEntities: " + numAbstractEntities);
     console.log("numAbstractRelationships: " + numAbstractRelationships);
     console.log("remainingRels: ");
@@ -463,6 +502,12 @@ class Revenger{
     string = string + "]";
     console.log(string);
     // END DEBUGGING //
+
+    this._cluster = cluster;
+    this._argument = argument;
+    this._numAE = numAbstractEntities;
+    this._numAR = numAbstractRelationships;
+    this.parseAbstractERData();
 
     res.send(null);
   }
