@@ -39,10 +39,14 @@ app.post('/saveproject', function(req, res) {
 				json.projectData[i].highLevelNode = req.body.nodeData;
 				json.projectData[i].highLevelLink = req.body.linkData;
 				json.projectData[i].highLevelHidden = req.body.hidden;
+				//console.log(req.body.onHighLevelView);
+				json.projectData[i].onHighLevelView = req.body.onHighLevelView;
 			}else{
 				json.projectData[i].lowLevelNode = req.body.nodeData;
 				json.projectData[i].lowLevelLink = req.body.linkData;
 				json.projectData[i].lowLevelHidden = req.body.hidden;
+				//console.log(req.body.onHighLevelView);
+				json.projectData[i].onHighLevelView = req.body.onHighLevelView;
 			}
 		}
 	}

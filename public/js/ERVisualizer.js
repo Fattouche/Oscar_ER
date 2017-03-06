@@ -304,6 +304,8 @@ function init() {
 				nodeData = data.data.highLevelNode;
 				linkData = data.data.highLevelLink;
         attributesHidden = data.data.highLevelHidden;
+        onHighLevelView = data.data.onHighLevelView;
+        //console.log(data.data.onHighLevelView);
 			}else{
         //add high level tables to model
 				for (var i in data.atables)
@@ -349,11 +351,14 @@ function init() {
                 nodeDataArray: nodeData,
                 linkDataArray: linkData
               });
-  	  }
       if(attributesHidden)
-         hideAttributes();  
+        hideAttributes(); 
+      if(!onHighLevelView)
+        createDrillOutButton(); 
 
       checkVisibility();
+  	  }
+      
     } //end onreadystatechange
   
   xmlHttp_tabledata.open("GET", "/tabledata", true); // true for asynchronous 
@@ -376,11 +381,13 @@ function exportImage(){
     a.click();
 } 
 
-function save(){
+function save(noAlert){
 	saved.database = data.database;
 	saved.linkData = myDiagram.model.linkDataArray;
 	saved.nodeData = myDiagram.model.nodeDataArray;
   saved.hidden = attributesHidden;
+  saved.onHighLevelView = onHighLevelView;
+  //console.log(onHighLevelView)
 	for(var i=0;i<saved.nodeData.length;i++){
 		var node = myDiagram.findNodeForData(saved.nodeData[i]);
 		var loc = node.location.copy();
@@ -390,7 +397,8 @@ function save(){
     saveData.open("POST", "/saveproject", true); 
 	saveData.setRequestHeader('Content-Type', 'application/json');
 	saveData.send(JSON.stringify(saved));
-	alert("Your project has been saved");
+	if(noAlert == undefined)
+    alert("Your project has been saved");
 }
 
 //hide all entities
@@ -421,24 +429,29 @@ function setVisibility(entityName, isSelected, data) {
   if(data==null){
 	  data = myDiagram.model.findNodeDataForKey(entityName);
   }
-  myDiagram.model.setDataProperty(data, "entityVisibility", isSelected);
-  myDiagram.model.commitTransaction("change_entity_visibility");
+  if((onHighLevelView && data.category == "highLevelEntity") || (!onHighLevelView && data.category == "lowLevelEntity")){
+    myDiagram.model.setDataProperty(data, "entityVisibility", isSelected);
+    myDiagram.model.commitTransaction("change_entity_visibility");
 
-  //if element is not visible, create a checkbox 
-  if(isSelected == false){
-    //if(onHighLevelView)
-    console.log(data)
-    if((onHighLevelView && data.category == "highLevelEntity") || (!onHighLevelView && data.category == "lowLevelEntity")){
-      var element = document.createElement('a');
-      element.innerHTML = entityName;
-      element.onclick  = function(cb){
-        setVisibility(element.innerHTML, true, data);
-        element.parentNode.removeChild(element);
-      }
-    
-      var div = document.getElementById("entityList");
-      div.appendChild(element);
-    }   
+    //if element is not visible, create a checkbox 
+    if(isSelected == false){
+      //if(onHighLevelView)
+      //console.log(data)
+      
+        var element = document.createElement('a');
+        element.innerHTML = entityName;
+        element.onclick  = function(cb){
+          setVisibility(element.innerHTML, true, data);
+          element.parentNode.removeChild(element);
+        }
+      
+        var div = document.getElementById("entityList");
+        div.appendChild(element);
+      }   
+  }
+  else{
+     myDiagram.model.setDataProperty(data, "entityVisibility", false);
+     myDiagram.model.commitTransaction("change_entity_visibility");
   }
 } //end setVisibility
 
@@ -449,11 +462,7 @@ function checkVisibility(){
   while (itr.next()) {
     var node = itr.value;
     // console.log(node.data)
-     var visibility = node.visible;
-
-    // if(onHighLevelView){
-
-    // }
+    var visibility = node.visible;
 	  setVisibility(node.data.name, visibility, node.data);
   }
   myDiagram.commitTransaction("checkVisibility");
@@ -541,7 +550,7 @@ function hideAttributes(){
   while (itr.next()) {
     var node = itr.value;
     var properties = node.findObject("PROPERTIES");
-    console.log(properties);
+    //console.log(properties);
     properties.visible = false;
   }
   myDiagram.commitTransaction("hideAllAttributes");
@@ -557,7 +566,7 @@ function showAttributes(){
    while (itr.next()) {
       var node = itr.value;
       var properties = node.findObject("PROPERTIES");
-      console.log(properties);
+      //console.log(properties);
       properties.visible = true;
    }
    myDiagram.commitTransaction("showAllAttributes");
@@ -572,7 +581,9 @@ function drillInto(e, obj){
   //set visibility of high level nodes to false
   while (itr.next()) {
     var node = itr.value;
-    node.visible = false;
+    if(node.data.category == "highLevelEntity")
+      setVisibility(node.data.name, false, node.data);
+   // node.visible = false;
   }
 
   var drilledNode = obj.part.adornedPart;
@@ -583,10 +594,44 @@ function drillInto(e, obj){
      var node = itr.value;
      for(var i = 0; i < drilledNode.data.properties.length; i++){
         if(node.data.name == drilledNode.data.properties[i].name)
-          node.visible = true;
+          //node.visible = true;
+          setVisibility(node.data.name, true, node.data)
      }
   }
+  save(true);
   myDiagram.commitTransaction("drillInto");
+  createDrillOutButton();
+  
 }//end drillInto
+
+function createDrillOutButton(){
+  var buttonArea = document.getElementById("rowButtons")
+  var button = document.createElement("button");
+  button.className = "myButton";
+  button.innerHTML = "Drill Out"
+  button.id = "drillButton"
+  buttonArea.appendChild(button);
+  button.onclick = function(){
+    buttonArea.removeChild(button);  
+    drillOut();
+  }
+}//end CreateDrillOutButton
+
+function drillOut(){
+  onHighLevelView = true;
+  myDiagram.startTransaction("drillOut");
+  
+  var itr = myDiagram.nodes;
+  
+  while(itr.next()){
+    var node = itr.value;
+    //console.log(node.data.name)
+    if(node.data.category == "highLevelEntity")
+      setVisibility(node.data.name, true, node.data)
+    else
+      setVisibility(node.data.name, false, node.data)
+  }
+  myDiagram.commitTransaction("drillOut");
+}//end drillOut
 
 
