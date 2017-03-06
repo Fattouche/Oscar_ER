@@ -3,6 +3,8 @@ var lister=[];
 var myDiagram;
 var saved = {};
 var attributesHidden = false;
+var data;
+var onHighLevelView = true;
 
 function init() {
 
@@ -167,7 +169,7 @@ function init() {
               {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand}),
 			$("ContextMenuButton",
               $(go.TextBlock, "drill"),
-              {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand})
+              {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: drillInto})
           )  
 		},
         $(go.Shape, { fill: "lightsalmon" },
@@ -227,7 +229,7 @@ function init() {
               {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand}),
 			$("ContextMenuButton",
               $(go.TextBlock, "drill"),
-              {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand})
+              {alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: drillInto})
           )  
 		},
         $(go.Shape, { fill: "lightblue" },
@@ -297,26 +299,48 @@ function init() {
       if (xmlHttp_tabledata.readyState == 4 && xmlHttp_tabledata.status == 200) {
 			var nodeData = []
 			var linkData = []
-            data = JSON.parse(xmlHttp_tabledata.responseText);
+      data = JSON.parse(xmlHttp_tabledata.responseText);
 			if(data.data!=null){
 				nodeData = data.data.highLevelNode;
 				linkData = data.data.highLevelLink;
         attributesHidden = data.data.highLevelHidden;
 			}else{
-				for (var i in data.tables)
+        //add high level tables to model
+				for (var i in data.atables)
 				{
-					var tableData = data.tables[i]
+					var tableData = data.atables[i]
 					lister.unshift(tableData.name);
 					//These should be set when we know the properties of the javascript object being passed in
 					//if(tableData.category=="lowLevelEntity")
 					//	tableData.category = lowLevelEntity;
 					//else if(tableData.category=="highLevelEntity")
-						tableData.category = highLevelEntity;
+					tableData.category = highLevelEntity;
 					//else if(tableData.category=="highLevelRelationship")
 					//	tableData.category = highLevelRelationship;
 					nodeData.push(tableData);
 				}
-				 linkData = data.links;
+
+        //add low level tables to model
+        for (var i in data.tables)
+        {
+          var tableData = data.tables[i]
+          lister.unshift(tableData.name);
+          //These should be set when we know the properties of the javascript object being passed in
+          //if(tableData.category=="lowLevelEntity")
+          //  tableData.category = lowLevelEntity;
+          //else if(tableData.category=="highLevelEntity")
+          tableData.category = lowLevelEntity;
+          //else if(tableData.category=="highLevelRelationship")
+          //  tableData.category = highLevelRelationship;
+          nodeData.push(tableData);
+        }
+        //add high level links to model
+				 linkData = data.alinks;
+
+         //add low lovel links to model
+         for(var i = 0; i < data.links.length; i++){
+           linkData.push(data.links[i])
+         }
 			}
             myDiagram.model = $(go.GraphLinksModel,
               {
@@ -402,15 +426,19 @@ function setVisibility(entityName, isSelected, data) {
 
   //if element is not visible, create a checkbox 
   if(isSelected == false){
-    var element = document.createElement('a');
-    element.innerHTML = entityName;
-    element.onclick  = function(cb){
-      setVisibility(element.innerHTML, true, data);
-      element.parentNode.removeChild(element);
-    }
+    //if(onHighLevelView)
+    console.log(data)
+    if((onHighLevelView && data.category == "highLevelEntity") || (!onHighLevelView && data.category == "lowLevelEntity")){
+      var element = document.createElement('a');
+      element.innerHTML = entityName;
+      element.onclick  = function(cb){
+        setVisibility(element.innerHTML, true, data);
+        element.parentNode.removeChild(element);
+      }
     
-    var div = document.getElementById("entityList");
-    div.appendChild(element);
+      var div = document.getElementById("entityList");
+      div.appendChild(element);
+    }   
   }
 } //end setVisibility
 
@@ -420,7 +448,12 @@ function checkVisibility(){
   var itr = myDiagram.nodes;
   while (itr.next()) {
     var node = itr.value;
-    var visibility = node.visible;
+    // console.log(node.data)
+     var visibility = node.visible;
+
+    // if(onHighLevelView){
+
+    // }
 	  setVisibility(node.data.name, visibility, node.data);
   }
   myDiagram.commitTransaction("checkVisibility");
@@ -529,5 +562,31 @@ function showAttributes(){
    }
    myDiagram.commitTransaction("showAllAttributes");
 }//end showAttributes
+
+function drillInto(e, obj){
+  onHighLevelView = false;
+  
+  myDiagram.startTransaction("drillInto");
+  var itr = myDiagram.nodes;
+  
+  //set visibility of high level nodes to false
+  while (itr.next()) {
+    var node = itr.value;
+    node.visible = false;
+  }
+
+  var drilledNode = obj.part.adornedPart;
+  itr = myDiagram.nodes;
+  
+  //set visibility of low level nodes to true
+  while(itr.next()){
+     var node = itr.value;
+     for(var i = 0; i < drilledNode.data.properties.length; i++){
+        if(node.data.name == drilledNode.data.properties[i].name)
+          node.visible = true;
+     }
+  }
+  myDiagram.commitTransaction("drillInto");
+}//end drillInto
 
 
