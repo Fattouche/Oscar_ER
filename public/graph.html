@@ -1,62 +1,67 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>SENG371: Milestone 1</title>
-<meta name="description" content="Interactive entity-relationship diagram or data model diagram implemented by GoJS in JavaScript for HTML." />
-<!-- Copyright 1998-2016 by Northwoods Software Corporation. -->
-<meta charset="UTF-8">
-<link href="./css/sample.css" rel="stylesheet" type="text/css" />  <!-- you don't need to use this -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gojs/1.6.7/go-debug.js"></script>
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
-<script src="js/ERVisualizer.js"></script>
-<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<script>
-  $( function() {
-    $( "#mySearch" ).autocomplete({
-      source: lister
-    });
-  });
- </script>
+    <title>SENG371: Milestone 1</title>
+    <meta name="description" content="Interactive entity-relationship diagram or data model diagram implemented by GoJS in JavaScript for HTML." />
+    <!-- Copyright 1998-2016 by Northwoods Software Corporation. -->
+    <meta charset="UTF-8">
+    <link href="./css/sample.css" rel="stylesheet" type="text/css" />
+    <!-- you don't need to use this -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gojs/1.6.7/go-debug.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+    <script src="js/ERVisualizer.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $(function() {
+            $("#mySearch").autocomplete({
+                source: lister
+            });
+        });
+    </script>
 </head>
 
-<body onload="init()"/ >
+<body onload="init()" />
 
-	<div><ul id="navbar">
-		<li id = "teamName" onclick="window.location.href='index.html'" onmouseover="" style="cursor: pointer;">TALSPALS</li>
-		<li id = "navTitle">Data Visualization</li>
-	</ul></div>
+<div>
+    <ul id="navbar">
+        <li id="teamName" onclick="window.location.href='index.html'" onmouseover="" style="cursor: pointer;">TALSPALS</li>
+        <li id="navTitle">Data Visualization</li>
+    </ul>
+</div>
 
-	<div id="sample">
+<div id="sample">
 
-	<div id = "rowDiagram" style="position:relative;" >
-	  		<div id="myDiagramDiv" style="background-color: white; border: solid 1px black; width: 100%; height: 700px; position: relative;"></div>
-	  		<div id="myOverviewDiv" class="diagram"></div> 
-	</div>
+    <div id="rowDiagram" style="position:relative;">
+        <div id="myDiagramDiv" style="background-color: white; border: solid 1px black; width: 100%; height: 700px; position: relative;"></div>
+        <div id="myOverviewDiv" class="diagram"></div>
+    </div>
 
-  	<div id = "rowButtons">
-		<select onchange="ChangeLayout()" id="layout" class="myButton">
+    <div id="rowButtons">
+        <select onchange="ChangeLayout()" id="layout" class="myButton">
 		  <option value="grid" selected>Grid Layout</option>
 		  <option value="force-directed">Force-directed Layout</option>
 		  <option value="circular">Circular Layout</option>
 		  <option value="layered-digraph">Layered Digraph Layout</option>
 		  <option value="tree">Tree Layout</option>
 		</select>
-		<button type="button" class="myButton" onclick="showAll()">Show Entities</button>
-		<button type="button" class="myButton" onclick="hideAll()">Hide Entities</button>
-		<button id = "attributeToggle" onclick="hideAttributes()" class = "myButton" >Hide Attributes</button>
-		<button type="button" class="myButton" onclick="exportImage()">Export Image</button>
-		<button type="button" class="myButton" onclick="save()">Save</button>
-		<input placeholder = "Search for an Entity.." type="search" id="mySearch" onkeypress="if (event.keyCode === 13) searchDiagram()" />
-		<button onclick="searchDiagram()" class = "myButton" >Find</button>	
-	</div>
+        <button type="button" class="myButton" onclick="showAll()">Show Entities</button>
+        <button type="button" class="myButton" onclick="hideAll()">Hide Entities</button>
+        <button id="attributeToggle" onclick="hideAttributes()" class="myButton">Hide Attributes</button>
+        <button type="button" class="myButton" onclick="exportImage()">Export Image</button>
+        <button type="button" class="myButton" onclick="save()">Save</button>
+        <input placeholder="Search for an Entity.." type="search" id="mySearch" onkeypress="if (event.keyCode === 13) searchDiagram()" />
+        <button onclick="searchDiagram()" class="myButton">Find</button>
+    </div>
 
 
 
-  	<div id = "bottomRow" align="center">
-  		<h3 align="center">Entities Not Displayed (Click to display)</h3>
-	 	<div id ="entityList" class = "vertical-menu"></div>
-	</div>
+    <div id="bottomRow" align="center">
+        <h3 align="center">Entities Not Displayed (Click to display)</h3>
+        <div id="entityList" class="vertical-menu"></div>
+    </div>
 
 </div>
+
 </html>
