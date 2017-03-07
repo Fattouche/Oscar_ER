@@ -9,7 +9,7 @@ var Revenger = null;
 var database = null;
 
 var app = express();
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
 
 app.use(express.static('public'));
 
