@@ -12,8 +12,9 @@ class Revenger {
         this.databasename = database;
         this.links = [];
         this.tables = {};
-        this.abstractERTables = {};
-        this.abstractERlinks = [];
+        this.abstractEREntities = {};
+        this.abstractERRelationships = {};
+        this.abstractERLinks = [];
         this._cluster;
         this._argument;
         this._numAE;
@@ -75,14 +76,18 @@ class Revenger {
                         visibility: "public"
                     });
                 }
-                this.abstractERTables[tag] = newtable;
+                if (i < this._numAE) {
+                  this.abstractEREntities[tag] = newtable;
+                } else {
+                  this.abstractERRelationships[tag] = newtable;
+                }
             }
 
         }
         for (var i = 0; i < this._numAR; i++) {
             for (var j = 0; j < this._argument[i].length; j++) {
                 if (this._argument[i][j]) {
-                    this.abstractERlinks.push({
+                    this.abstractERLinks.push({
                         from: "AE " + (j + 1),
                         to: "AR " + (i + 1),
                         relationship: "generalization"
@@ -90,14 +95,13 @@ class Revenger {
                 }
             }
         }
-        // console.log(this.abstractERTables);
-        // console.log(this.abstractERlinks);
     }
 
     getData(res) {
         res.json({
-            atables: this.abstractERTables,
-            alinks: this.abstractERlinks,
+            aEntities: this.abstractEREntities,
+            aRelationships: this.abstractERRelationships,
+            aLinks: this.abstractERLinks,
             tables: this.tables,
             links: this.links,
             database: this.databasename,
@@ -317,11 +321,13 @@ class Revenger {
         var remainingRels = ordered_rels.slice();
 
         // FOR DEBUGGING //
+        /*
         console.log();
         console.log("tableslist:");
         for (var i in tableslist) {
             console.log("{ " + tableslist[i].name + ", [" + tableslist[i].primary_keys + "] }")
         }
+        */
         // END DEBUGGING //
 
         var cluster = [];
@@ -358,6 +364,7 @@ class Revenger {
         }
 
         // FOR DEBUGGING //
+        /*
         console.log();
         console.log("cluster: ");
         for (var i in cluster) {
@@ -375,6 +382,7 @@ class Revenger {
         }
         string = string + "]";
         console.log(string);
+        */
         // END DEBUGGING //
 
         // Step 3    
@@ -409,6 +417,7 @@ class Revenger {
         }
 
         // FOR DEBUGGING //
+        /*
         console.log();
         console.log("cluster: ");
         for (var i in cluster) {
@@ -426,6 +435,7 @@ class Revenger {
         }
         string = string + "]";
         console.log(string);
+        */
         // END DEBUGGING //
 
         // Step 4    
@@ -444,6 +454,12 @@ class Revenger {
         var firstRelationship = true;
 
         for (var r = 0; r < remainingRels.length; r++) {
+          
+            // reset intersects array
+            for (var i in intersects) {
+              intersects[i] = false;
+            }
+            
             var relation = remainingRels[r];
 
             for (var i = 0; i < numAbstractEntities; i++) {

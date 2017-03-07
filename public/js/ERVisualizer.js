@@ -301,7 +301,7 @@ function init() {
                             })
                     )
             },
-            $(go.Shape, {
+            $(go.Shape, "Diamond", {
                     fill: "lightblue"
                 },
                 new go.Binding("fill", "isHighlighted", function(h) {
@@ -398,10 +398,17 @@ function init() {
                 onHighLevelView = data.data.onHighLevelView;
             } else {
                 //add high level tables to model
-                for (var i in data.atables) {
-                    var tableData = data.atables[i]
+                for (var i in data.aEntities) {
+                    var tableData = data.aEntities[i]
                     lister.unshift(tableData.name);
                     tableData.category = highLevelEntity;
+                    nodeData.push(tableData);
+                }
+                
+                for (var i in data.aRelationships) {
+                    var tableData = data.aRelationships[i]
+                    lister.unshift(tableData.name);
+                    tableData.category = highLevelRelationship;
                     nodeData.push(tableData);
                 }
 
@@ -413,7 +420,7 @@ function init() {
                     nodeData.push(tableData);
                 }
                 //add high level links to model
-                linkData = data.alinks;
+                linkData = data.aLinks;
 
                 //add low lovel links to model
                 for (var i = 0; i < data.links.length; i++) {
@@ -438,8 +445,6 @@ function init() {
 
     xmlHttp_tabledata.open("GET", "/tabledata", true); // true for asynchronous 
     xmlHttp_tabledata.send(null);
-
-
 
     var myOverview =
         $(go.Overview, "myOverviewDiv", // the HTML DIV element for the Overview
@@ -506,7 +511,7 @@ function setVisibility(entityName, isSelected, data) {
     if (data == null) {
         data = myDiagram.model.findNodeDataForKey(entityName);
     }
-    if ((onHighLevelView && data.category == "highLevelEntity") || (!onHighLevelView && data.category == "lowLevelEntity")) {
+    if ((onHighLevelView && data.category == "highLevelEntity") || (onHighLevelView && data.category == "highLevelRelationship") || (!onHighLevelView && data.category == "lowLevelEntity")) {
         myDiagram.model.setDataProperty(data, "entityVisibility", isSelected);
         myDiagram.model.commitTransaction("change_entity_visibility");
 
@@ -650,7 +655,7 @@ function drillInto(e, obj) {
     //set visibility of high level nodes to false
     while (itr.next()) {
         var node = itr.value;
-        if (node.data.category == "highLevelEntity")
+        if (node.data.category === "highLevelEntity" || node.data.category === "highLevelRelationship")
             setVisibility(node.data.name, false, node.data);
         // node.visible = false;
     }
@@ -694,7 +699,7 @@ function drillOut() {
 
     while (itr.next()) {
         var node = itr.value;
-        if (node.data.category == "highLevelEntity")
+        if (node.data.category === "highLevelEntity" || node.data.category === "highLevelRelationship")
             setVisibility(node.data.name, true, node.data)
         else
             setVisibility(node.data.name, false, node.data)
