@@ -49,7 +49,8 @@
         <button type="button" class="myButton" onclick="showAll()">Show Entities</button>
         <button type="button" class="myButton" onclick="hideAll()">Hide Entities</button>
         <button id="attributeToggle" onclick="hideAttributes()" class="myButton">Hide Attributes</button>
-        <button type="button" class="myButton" onclick="exportImage()">Export Image</button>
+        <button type="button" class="myButton" onclick="exportImageView()">Export Image (Current View)</button>
+        <button type="button" class="myButton" onclick="exportImageFull()">Export Image (Entire Diagram)</button>
         <button type="button" class="myButton" onclick="save()">Save</button>
         <input placeholder="Search for an Entity.." type="search" id="mySearch" onkeypress="if (event.keyCode === 13) searchDiagram()" />
         <button onclick="searchDiagram()" class="myButton">Find</button>

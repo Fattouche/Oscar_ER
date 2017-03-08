@@ -454,14 +454,25 @@ function init() {
             });
 } //end init
 
-function exportImage() {
+function exportImageView() {
     var img = myDiagram.makeImage({
-        background: "rgba(255,255, 255, 255)",
+        background: "rgba(255, 255, 255, 255)",
     });
     var a = document.createElement('a');
     a.href = img.src;
-    a.download = 'ERScreenShot.png';
+    a.download = 'ERScreenShotView.png';
     a.click();
+}
+
+function exportImageFull() {
+    var img = myDiagram.makeImage({
+        background: "White",
+        scale: 1,
+    });
+    var b = document.createElement('a');
+    b.href = img.src;
+    b.download = 'ERScreenShotFull.png';
+    b.click();
 }
 
 function save(noAlert) {
