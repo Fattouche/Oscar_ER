@@ -381,8 +381,8 @@ function init() {
     // The item template for links
     myDiagram.linkTemplate =
         $(go.Link,
-            $(go.Shape)
-        );
+			$("Shape", new go.Binding("stroke", "color"))
+		);
 
 
     var xmlHttp_tabledata = new XMLHttpRequest();
@@ -424,6 +424,11 @@ function init() {
 
                 //add low lovel links to model
                 for (var i = 0; i < data.links.length; i++) {
+					if(data.links[i].isSource){
+						data.links[i].color = "green";
+					}else{
+						data.links[i].color = "black";
+					}
                     linkData.push(data.links[i])
                 }
             }
