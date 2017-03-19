@@ -8,9 +8,8 @@ class Revenger {
             user: user,
             password: password,
             database: database
-			codeDir: codeDir
         });
-        this.source = source;
+        this.codeDir = codeDir;
         this.databasename = database;
         this.links = [];
         this.tables = {};
