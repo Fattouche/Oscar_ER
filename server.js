@@ -56,12 +56,15 @@ app.post('/saveproject', function(req, res) {
 });
 
 app.post('/connect', function(req, res) {
-	// if (!fs.existsSync(req.body.source)){
-	// 	res.json({
-	// 		connect: false,
-	// 		message: "Invalid source directory"
-	// 	})
-	// }
+	if (req.body.codeDir){
+		if (!fs.existsSync(req.body.codeDir)){
+			res.json({
+				connect: false,
+				message: "Invalid source directory"
+			});
+			return
+		}
+	}
     database = req.body.database;
     Revenger = new reveng.Revenger(res, mysql, req.body.host, req.body.port, req.body.user, req.body.password, req.body.database, req.body.codeDir);
 });

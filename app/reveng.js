@@ -1,4 +1,5 @@
 "use strict"
+var fs = require('fs');
 class Revenger {
 
     constructor(res, mysql, host, port, user, password, database, codeDir) {
@@ -11,6 +12,7 @@ class Revenger {
         });
         this.codeDir = codeDir;
         this.databasename = database;
+        this.sourceLinks = "app/sourceLinks.json";
         this.links = [];
         this.tables = {};
         this.abstractEREntities = {};
@@ -54,7 +56,7 @@ class Revenger {
 
         example format of this.links:
       [
-          { from: 12, to: 11, relationship: "generalization" }
+          { from: 12, to: 11, relationship: "generalization", isSource: false}
       ]
     */
 
@@ -552,7 +554,24 @@ class Revenger {
         this._numAR = numAbstractRelationships;
         this.parseAbstractERData();
 
-        res.send(null);
+        if (this.codeDir){
+        	this.getSourceForeignKeys(res);
+    	}
+    	else{
+    		res.send(null);
+    	}
+    }
+
+    getSourceForeignKeys(res){
+    	if (fs.existsSync(this.sourceLinks)){
+    		//parse it
+    		fs.unlink(this.sourceLinks);
+	    	res.send(null);
+    	}
+    	else{
+    		setTimeout(function () {getSourceForeignKeys(res);}, 300);
+    	}
+    	
     }
 } //end class Revenger
 
