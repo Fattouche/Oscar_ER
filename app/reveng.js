@@ -1,7 +1,7 @@
 "use strict"
 class Revenger {
 
-    constructor(res, mysql, host, port, user, password, database) {
+    constructor(res, mysql, host, port, user, password, database, source) {
         this.db = mysql.createConnection({
             host: host,
             port: port,
@@ -9,6 +9,7 @@ class Revenger {
             password: password,
             database: database
         });
+        this.source = source;
         this.databasename = database;
         this.links = [];
         this.tables = {};
@@ -23,7 +24,8 @@ class Revenger {
         this.db.connect(function(err) {
             if (err) {
                 res.json({
-                    connect: false
+                    connect: false,
+                    message: "MySQL connection failed"
                 });
             } else {
                 res.json({
@@ -114,6 +116,7 @@ class Revenger {
         var self = this;
         self.tables = {};
         self.links = [];
+        //Call to java program
         this.db.query("USE " + this.databasename + ";");
         this.db.query("SELECT TABLE_NAME \
           FROM information_schema.TABLES \

@@ -3,7 +3,7 @@ var fs = require('fs');
 var mysql = require('mysql');
 var express = require("express");
 var bodyParser = require("body-parser");
-var reveng = require("./app/reveng")
+var reveng = require("./app/reveng");
 
 var Revenger = null;
 var database = null;
@@ -56,8 +56,14 @@ app.post('/saveproject', function(req, res) {
 });
 
 app.post('/connect', function(req, res) {
+	// if (!fs.existsSync(req.body.source)){
+	// 	res.json({
+	// 		connect: false,
+	// 		message: "Invalid source directory"
+	// 	})
+	// }
     database = req.body.database;
-    Revenger = new reveng.Revenger(res, mysql, req.body.host, req.body.port, req.body.user, req.body.password, req.body.database);
+    Revenger = new reveng.Revenger(res, mysql, req.body.host, req.body.port, req.body.user, req.body.password, req.body.database, req.body.source);
 });
 
 app.post('/start', function(req, res) {

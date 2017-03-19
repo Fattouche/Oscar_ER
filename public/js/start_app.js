@@ -20,7 +20,7 @@ function start() {
                 xmlHttp_start.open("POST", "/start", true)
                 xmlHttp_start.send();
             } else {
-                alert("MySQL connect failed.")
+                alert(status.message);
             }
         }
 
