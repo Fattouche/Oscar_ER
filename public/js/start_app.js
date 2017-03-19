@@ -26,7 +26,7 @@ function start() {
 
     }
 
-    var p_host, p_port, p_user, p_password, p_database;
+    var p_host, p_port, p_user, p_password, p_database, p_codeDir;
     var projectSelected = false;
     // var multiple = false;
 
@@ -38,6 +38,7 @@ function start() {
             p_user = project["projectData"][i]["user"];
             p_password = project["projectData"][i]["password"];
             p_database = project["projectData"][i]["database"];
+			p_codeDir = project["projectData"][i]["codeDir"];
 
             projectSelected = true;
         } else if (table.rows[i].cells[0].childNodes[0].checked == true && projectSelected == true) {
@@ -60,7 +61,8 @@ function start() {
         port: p_port,
         user: p_user,
         password: p_password,
-        database: p_database
+        database: p_database,
+		codeDir: p_codeDir
     }));
 
 } //end start
@@ -131,7 +133,8 @@ function createProject() {
         "user": document.getElementById("newProjUser").value,
         "password": document.getElementById("newProjPass").value,
         "database": document.getElementById("newProjData").value,
-        "port": document.getElementById("newProjPort").value
+        "port": document.getElementById("newProjPort").value,
+		"codeDir": document.getElementById("newProjCode").value
     }
     project["projectData"].push(newProj);
 
@@ -171,3 +174,4 @@ function editProject() {
     createTable();
     updateJson();
 } //end editProject
+

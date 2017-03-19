@@ -1,13 +1,14 @@
 "use strict"
 class Revenger {
 
-    constructor(res, mysql, host, port, user, password, database, source) {
+    constructor(res, mysql, host, port, user, password, database, codeDir) {
         this.db = mysql.createConnection({
             host: host,
             port: port,
             user: user,
             password: password,
             database: database
+			codeDir: codeDir
         });
         this.source = source;
         this.databasename = database;

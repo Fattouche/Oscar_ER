@@ -63,7 +63,11 @@ app.post('/connect', function(req, res) {
 	// 	})
 	// }
     database = req.body.database;
+<<<<<<< 68ade610a02acd71a730d6971e859af881295636
     Revenger = new reveng.Revenger(res, mysql, req.body.host, req.body.port, req.body.user, req.body.password, req.body.database, req.body.source);
+=======
+    Revenger = new reveng.Revenger(res, mysql, req.body.host, req.body.port, req.body.user, req.body.password, req.body.database, req.body.codeDir);
+>>>>>>> Adding front end source code inputter
 });
 
 app.post('/start', function(req, res) {
