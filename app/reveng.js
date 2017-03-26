@@ -576,7 +576,7 @@ class Revenger {
     }
 
     getSourceForeignKeys(res, fileName){
-		var srcer = fs.readFileSync("test.java", 'utf8');
+		var srcer = fs.readFileSync(fileName, 'utf8');
 		var tree = parser.parse(srcer);
 		var fromName,toName;
 		var templist = [];
