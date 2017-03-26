@@ -1,5 +1,6 @@
 "use strict"
 var fs = require('fs');
+var parser = require('java-parser');
 class Revenger {
 
     constructor(res, mysql, host, port, user, password, database, codeDir) {
@@ -574,16 +575,47 @@ class Revenger {
     	}
     }
 
-    getSourceForeignKeys(res){
-    	if (fs.existsSync(this.sourceLinks)){
-    		//parse it
-    		fs.unlink(this.sourceLinks);
-	    	res.send(null);
-    	}
-    	else{
-    		setTimeout(function () {getSourceForeignKeys(res);}, 300);
-    	}
-    	
+    getSourceForeignKeys(res, fileName){
+		var srcer = fs.readFileSync("test.java", 'utf8');
+		var tree = parser.parse(srcer);
+		var fromName,toName;
+		var templist = [];
+		
+		
+		var modifiers = tree.types[0].modifiers;
+		for(var i=0;modifiers.length;i++){
+			var typeName = modifiers[i].typeName;
+			if(typeName!==undefined){
+				if(typeName.identifier=="Table"){
+					fromName = tree.types[0].modifiers[i].values[0].value.escapedValue;
+					break;
+				}
+			}
+		}
+		
+		fromName = fromName.substring(1,fromName.length-1);
+		var bodyDeclarations = tree.types[0].bodyDeclarations;
+		for(var i=0;i<bodyDeclarations.length;i++){
+			var bodyDeclaration = bodyDeclarations[i];
+			for(var j=0;j<bodyDeclaration.modifiers.length;j++){
+				var modifiers = bodyDeclaration.modifiers[j]
+				if(modifiers!==undefined){
+					if(modifiers.typeName!==undefined){
+						if(modifiers.typeName.identifier=="ManyToOne" || modifiers.typeName.identifier=="OneToOne" || modifiers.typeName.identifier=="OneToMany"){
+							var fragment = bodyDeclaration.fragments[0];
+							if(fragment!==undefined){
+								toName=fragment.name.identifier;
+								templist.push({
+									"from": fromName,
+									"to": toName,
+									"isSource":true
+								});
+							}
+						}
+					}
+				}
+			}
+		}
     }
 } //end class Revenger
 
