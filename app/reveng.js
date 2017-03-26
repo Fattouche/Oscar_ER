@@ -101,6 +101,18 @@ class Revenger {
         }
     }
 
+    filterLinks(newlinks, oldlinks){
+    	return newLinks.filter(function(x) {
+    		for (var i = 0; i < oldlinks.length; i++){
+    			if ((oldlinks[i].from == x.from && oldlinks[i].to == x.to) ||
+    				 oldlinks[i].to == x.from && oldlinks[i].from == x.to){
+    				return false;
+    			}
+    		}
+    		return true;
+    	});
+    }
+
     getData(res) {
         res.json({
             aEntities: this.abstractEREntities,
