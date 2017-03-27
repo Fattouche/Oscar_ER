@@ -24,6 +24,7 @@ class Revenger {
         this._argument;
         this._numAE;
         this._numAR;
+        this._templist = [];
         this.data = null;
         this.db.connect(function(err) {
             if (err) {
@@ -232,7 +233,8 @@ class Revenger {
                         var toName = rows[i].REFERENCED_TABLE_NAME;
                         self.links.push({
                             "from": fromName,
-                            "to": toName
+                            "to": toName,
+                            "isSource": false
                         });
                         if (self.tables[fromName] != undefined &&
                             self.tables[toName] != undefined) {
@@ -589,6 +591,10 @@ class Revenger {
           }
         }
         if (res !== null) {
+          console.log(this.links);
+          console.log(this._templist);
+          this.links = this.links.concat(this.filterLinks(this._templist, this.links));
+          console.log(this.links)
           res.send(null);
         }
       }
@@ -602,7 +608,6 @@ class Revenger {
       var srcer = fs.readFileSync(fileName, 'utf8');
       var tree = parser.parse(srcer);
       var fromName,toName;
-      var templist = [];
       
       
       var modifiers = tree.types[0].modifiers;
@@ -628,7 +633,7 @@ class Revenger {
                 var fragment = bodyDeclaration.fragments[0];
                 if(fragment!==undefined){
                   toName=fragment.name.identifier;
-                  templist.push({
+                  this.templist.push({
                     "from": fromName,
                     "to": toName,
                     "isSource":true
