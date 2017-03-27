@@ -104,7 +104,7 @@ class Revenger {
         }
     }
 
-    filterLinks(newlinks, oldLinks){
+    filterLinks(newLinks, oldLinks){
     	return newLinks.filter(function(x) {
     		for (var i = 0; i < oldLinks.length; i++){
     			if ((oldLinks[i].from == x.from && oldLinks[i].to == x.to) ||
@@ -591,10 +591,7 @@ class Revenger {
           }
         }
         if (res !== null) {
-          console.log(this.links);
-          console.log(this._templist);
           this.links = this.links.concat(this.filterLinks(this._templist, this.links));
-          console.log(this.links)
           res.send(null);
         }
       }
