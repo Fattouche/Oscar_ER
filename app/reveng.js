@@ -25,6 +25,7 @@ class Revenger {
         this._numAE;
         this._numAR;
         this._templist = [];
+		this._parsedList={};
         this.data = null;
         this.db.connect(function(err) {
             if (err) {
@@ -604,46 +605,61 @@ class Revenger {
     getSourceForeignKeys(fileName){
       var srcer = fs.readFileSync(fileName, 'utf8');
       var tree = parser.parse(srcer);
-      var fromName,toName;
-  
+      var fromClass,fromTable;
+	  var toClasses=[];
+	  var classes;
       
-      var modifiers = tree.types[0].modifiers;
-      for(var i=0;modifiers.length;i++){
-		    if(modifiers[i]!=undefined){
-				var typeName = modifiers[i].typeName;
-				if(typeName!==undefined){
-				  if(typeName.identifier=="Table"){
-					fromName = tree.types[0].modifiers[i].values[0].value.escapedValue;
-					break;
+	  if(tree.types[0]!=undefined){
+		  var modifiers = tree.types[0].modifiers;
+		  for(var i=0;modifiers.length;i++){
+				if(modifiers[i]!=undefined){
+					var typeName = modifiers[i].typeName;
+					if(typeName!==undefined){
+					  if(typeName.identifier=="Table"){
+						fromTable = tree.types[0].modifiers[i].values[0].value.escapedValue;
+						fromClass = tree.types[0].name.identifier;
+						break;
+					  }
+					}
+				}
+		  }
+		  
+		  fromTable = fromTable.substring(1,fromTable.length-1);
+		  var bodyDeclarations = tree.types[0].bodyDeclarations;
+		  for(var i=0;i<bodyDeclarations.length;i++){
+			var bodyDeclaration = bodyDeclarations[i];
+			for(var j=0;j<bodyDeclaration.modifiers.length;j++){
+			  var modifiers = bodyDeclaration.modifiers[j]
+			  if(modifiers!==undefined){
+				if(modifiers.typeName!==undefined){
+				  if(modifiers.typeName.identifier=="ManyToOne" || modifiers.typeName.identifier=="OneToOne" || modifiers.typeName.identifier=="OneToMany"){
+					var type = bodyDeclaration.type;
+						if(type!=undefined){
+							if(type.name!=undefined){
+								classes = classes+type.name.identifier+'/';
+								//You need to find each of the class names(the full path)
+								//For example 'org.oscarehr.PMmodule.model.ProgramTeam = org/oscarehr/PMmodule/model/ProgramTeam' from the example he gave
+								//In order to do this, look at the json I am producing called out.txt and put it into a json formatter. You will see that
+								//the class names are in the tree but with longer class names, you need to do some more work (a loop or something).
+								//After you get the all the class names, they will be placed into this._parsedList(as shown below).
+								//Using the parsedList, you need to connect all the tables together and put them into this._templist.
+								//For example - admission connects to the table program(but we cant assume this), so we need to go to the class ProgramTeam using this._parsedList[ProgramTeam].fromTable
+								//which will give us the name of the table that we will connect to admission.
+							}
+						}
+					}
 				  }
 				}
-		    }
-      }
-      
-      fromName = fromName.substring(1,fromName.length-1);
-      var bodyDeclarations = tree.types[0].bodyDeclarations;
-      for(var i=0;i<bodyDeclarations.length;i++){
-        var bodyDeclaration = bodyDeclarations[i];
-        for(var j=0;j<bodyDeclaration.modifiers.length;j++){
-          var modifiers = bodyDeclaration.modifiers[j]
-          if(modifiers!==undefined){
-            if(modifiers.typeName!==undefined){
-              if(modifiers.typeName.identifier=="ManyToOne" || modifiers.typeName.identifier=="OneToOne" || modifiers.typeName.identifier=="OneToMany"){
-                var fragment = bodyDeclaration.fragments[0];
-                if(fragment!==undefined){
-                  toName=fragment.name.identifier;
-                  this._templist.push({
-                    "from": fromName,
-                    "to": toName,
-                    "isSource":true
-                  });
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+				if(toClasses!=''){
+					toClasses.push(classes);
+				}
+			  classes='';
+			}
+		  }
+		  this._parsedList[fromClass] = {"fromTable":fromTable,"toClasses":toClasses};
+		  console.log(this._parsedList); //if correct should be : { Admission: { fromTable: 'admission', toClasses: [Program,org/oscarehr/PMmodule/model/ProgramTeam,org/oscarehr/PMmodule/model/ProgramClientStatus,org/oscarehr/common/model/Demographic] } }
+		}
+	}
 } //end class Revenger
 
 module.exports = {
