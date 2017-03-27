@@ -1,6 +1,10 @@
 "use strict"
 var fs = require('fs');
+<<<<<<< baa33c4b2aa013d789544ef82b14e30592373542
 var parser = require('java-parser');
+=======
+var path = require('path');
+>>>>>>> Traverse given directory and extract java files for parsing
 class Revenger {
 
     constructor(res, mysql, host, port, user, password, database, codeDir) {
@@ -202,11 +206,12 @@ class Revenger {
                     }
                     if (res) {
                         // for debugging //
-                        //console.log("Primary Keys:");
+                        /*
                         for (var i in self.tables) {
                             console.log(self.tables[i].key);
                             console.log(self.tables[i].primary_keys);
                         }
+                        */
                         // end debugging //
                         self.getAllForeignKeys(res);
                     }
@@ -538,6 +543,7 @@ class Revenger {
         }
 
         // FOR DEBUGGING //
+        /*
         console.log();
         console.log("END OF ALGORITHM:");
         console.log("cluster: ");
@@ -559,6 +565,7 @@ class Revenger {
         }
         string = string + "]";
         console.log(string);
+        */
         // END DEBUGGING //
 
         this._cluster = cluster;
@@ -567,12 +574,31 @@ class Revenger {
         this._numAR = numAbstractRelationships;
         this.parseAbstractERData();
 
-        if (this.codeDir){
-        	this.getSourceForeignKeys(res);
-    	}
-    	else{
-    		res.send(null);
-    	}
+        this.traverseDirectory(this.codeDir, res);
+    }
+    
+    traverseDirectory(directory, res) {
+      if (directory !== undefined && directory !== null){
+        var contents = fs.readdirSync(directory);
+        
+        for (var i = 0; i < contents.length; i++) {          
+          var element = directory + "/" + contents[i];
+          var fileStat = fs.statSync(element);
+          
+          if (fileStat.isFile() && path.extname(element) === '.java') {
+            this.getSourceForeignKeys(element);
+          } else if (fileStat.isDirectory()) {
+            this.traverseDirectory(element, null);
+          }
+        }
+        if (res !== null) {
+          res.send(null);
+        }
+      }
+      else {
+        console.log("Something went wrong with traverseDirectory, ended prematurely");
+        res.send(null);
+      }
     }
 
     getSourceForeignKeys(res, fileName){
@@ -616,7 +642,6 @@ class Revenger {
 				}
 			}
 		}
-    }
 } //end class Revenger
 
 module.exports = {
