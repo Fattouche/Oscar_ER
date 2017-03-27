@@ -1,10 +1,7 @@
 "use strict"
 var fs = require('fs');
-<<<<<<< baa33c4b2aa013d789544ef82b14e30592373542
 var parser = require('java-parser');
-=======
 var path = require('path');
->>>>>>> Traverse given directory and extract java files for parsing
 class Revenger {
 
     constructor(res, mysql, host, port, user, password, database, codeDir) {
