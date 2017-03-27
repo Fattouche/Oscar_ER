@@ -104,11 +104,11 @@ class Revenger {
         }
     }
 
-    filterLinks(newlinks, oldlinks){
+    filterLinks(newlinks, oldLinks){
     	return newLinks.filter(function(x) {
-    		for (var i = 0; i < oldlinks.length; i++){
-    			if ((oldlinks[i].from == x.from && oldlinks[i].to == x.to) ||
-    				 oldlinks[i].to == x.from && oldlinks[i].from == x.to){
+    		for (var i = 0; i < oldLinks.length; i++){
+    			if ((oldLinks[i].from == x.from && oldLinks[i].to == x.to) ||
+    				 oldLinks[i].to == x.from && oldLinks[i].from == x.to){
     				return false;
     			}
     		}
@@ -608,17 +608,19 @@ class Revenger {
       var srcer = fs.readFileSync(fileName, 'utf8');
       var tree = parser.parse(srcer);
       var fromName,toName;
-      
+  
       
       var modifiers = tree.types[0].modifiers;
       for(var i=0;modifiers.length;i++){
-        var typeName = modifiers[i].typeName;
-        if(typeName!==undefined){
-          if(typeName.identifier=="Table"){
-            fromName = tree.types[0].modifiers[i].values[0].value.escapedValue;
-            break;
-          }
-        }
+		    if(modifiers[i]!=undefined){
+				var typeName = modifiers[i].typeName;
+				if(typeName!==undefined){
+				  if(typeName.identifier=="Table"){
+					fromName = tree.types[0].modifiers[i].values[0].value.escapedValue;
+					break;
+				  }
+				}
+		    }
       }
       
       fromName = fromName.substring(1,fromName.length-1);
@@ -633,7 +635,7 @@ class Revenger {
                 var fragment = bodyDeclaration.fragments[0];
                 if(fragment!==undefined){
                   toName=fragment.name.identifier;
-                  this.templist.push({
+                  this._templist.push({
                     "from": fromName,
                     "to": toName,
                     "isSource":true
