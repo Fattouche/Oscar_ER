@@ -592,6 +592,7 @@ class Revenger {
           }
         }
         if (res !== null) {
+		  this.getLinksFromParsedList();
           this.links = this.links.concat(this.filterLinks(this._templist, this.links));
           res.send(null);
         }
@@ -601,6 +602,33 @@ class Revenger {
         res.send(null);
       }
     }
+	
+	getLinksFromParsedList(){
+		var fromTable;
+		var toTable;
+		//iterate through all the objects we got after parsing files
+		for(var key in this._parsedList){
+			if(this._parsedList.hasOwnProperty(key)){
+				var classObj = this._parsedList[key];
+				//If we found a table from parsing, set it to fromTable
+				if(classObj.fromTable!=undefined && classObj.fromTable!=''){
+					fromTable = classObj.fromTable;
+					//For each of the classes we found when parsing each individual file, get their table from this object we have
+					for(var i=0;i<classObj.toClasses.length;i++){
+						if(this._parsedList[classObj.toClasses[i]]!=undefined && this._parsedList[classObj.toClasses[i]].fromTable!=undefined && this._parsedList[classObj.toClasses[i]].fromTable!=''){
+							toTable = this._parsedList[classObj.toClasses[i]].fromTable;
+							//Push the new link to templist so it can be merged with our links later
+							this._templist.push({
+								"from":fromTable,
+								"to":toTable,
+								"isSource":true
+							})
+						}
+					}
+				}
+			}
+		}
+	}
 
     getSourceForeignKeys(fileName){
       var srcer = fs.readFileSync(fileName, 'utf8');
@@ -679,7 +707,6 @@ class Revenger {
 		  }//endfor
 
 		  this._parsedList[fromClass] = {"fromTable":fromTable,"toClasses":toClasses};
-		  //console.log(this._parsedList); 
 
           //get path for the table
           var tableName = Object.keys(this._parsedList);
