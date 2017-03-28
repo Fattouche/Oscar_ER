@@ -573,8 +573,8 @@ class Revenger {
         this._numAE = numAbstractEntities;
         this._numAR = numAbstractRelationships;
         this.parseAbstractERData();
-
         this.traverseDirectory(this.codeDir, res);
+
     }
     
     traverseDirectory(directory, res) {
@@ -608,6 +608,23 @@ class Revenger {
       var fromClass,fromTable;
 	  var toClasses=[];
 	  var classes;
+
+      //recursively gets the pathname 
+      function recursiveName(qualifier){
+            if(qualifier.qualifier != undefined){
+                recursiveName(qualifier.qualifier);
+            }
+            else {
+                if(qualifier.identifier != undefined){
+                    classes = classes + qualifier.identifier + '/';
+                    return;
+                }
+            }
+            if(qualifier.name != undefined){
+                if(qualifier.name.identifier != undefined)
+                    classes = classes + qualifier.name.identifier + '/';
+            }
+        }
       
 	  if(tree.types[0]!=undefined){
 		  var modifiers = tree.types[0].modifiers;
@@ -636,29 +653,45 @@ class Revenger {
 					var type = bodyDeclaration.type;
 						if(type!=undefined){
 							if(type.name!=undefined){
-								classes = classes+type.name.identifier+'/';
-								//You need to find each of the class names(the full path)
-								//For example 'org.oscarehr.PMmodule.model.ProgramTeam = org/oscarehr/PMmodule/model/ProgramTeam' from the example he gave
-								//In order to do this, look at the json I am producing called out.txt and put it into a json formatter. You will see that
-								//the class names are in the tree but with longer class names, you need to do some more work (a loop or something).
-								//After you get the all the class names, they will be placed into this._parsedList(as shown below).
-								//Using the parsedList, you need to connect all the tables together and put them into this._templist.
-								//For example - admission connects to the table program(but we cant assume this), so we need to go to the class ProgramTeam using this._parsedList[ProgramTeam].fromTable
-								//which will give us the name of the table that we will connect to admission.
+						
+                                recursiveName(type.name);
+
+                                //checks imports for the path if only the package name was given
+                                if(classes == type.name.identifier + '/'){
+                                    var imports = tree.imports;
+                                    for(var k = 0; k < imports.length; k++){
+                                        if(classes.includes(imports[k].name.name.identifier)){
+                                            classes = '';
+                                            recursiveName(imports[k].name);
+                                        }
+                                    }//endfor
+                                }
 							}
 						}
 					}
 				  }
-				}
-				if(toClasses!=''){
+				}//endfor
+				if(classes!='' && classes != undefined){
 					toClasses.push(classes);
 				}
 			  classes='';
 			}
-		  }
+		  }//endfor
+
 		  this._parsedList[fromClass] = {"fromTable":fromTable,"toClasses":toClasses};
-		  console.log(this._parsedList); //if correct should be : { Admission: { fromTable: 'admission', toClasses: [Program,org/oscarehr/PMmodule/model/ProgramTeam,org/oscarehr/PMmodule/model/ProgramClientStatus,org/oscarehr/common/model/Demographic] } }
-		}
+		  //console.log(this._parsedList); 
+
+          //get path for the table
+          var tableName = Object.keys(this._parsedList);
+          recursiveName(tree.package.name);
+          classes = classes + tableName;
+
+          //replace the key in _parsedList
+          this._parsedList[classes] = this._parsedList[tableName];
+          delete this._parsedList[tableName];
+          //console.log(this._parsedList);
+
+        }
 	}
 } //end class Revenger
 
