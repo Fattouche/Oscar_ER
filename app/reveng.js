@@ -609,10 +609,8 @@ class Revenger {
 	getLinksFromParsedList(){
 		//iterate through all the objects we got after parsing files
 		for (var key in this._parsedList) {
-      console.log("key: " + key + " type of key: " + typeof key);
 			if (this._parsedList.hasOwnProperty(key)){
 				var classObj = this._parsedList[key];
-        console.log("class: " + JSON.stringify(classObj));
 				//If we found a table from parsing, set it to fromTable
         var fromTable;
 				if (classObj.fromTable !== undefined && classObj.fromTable !== ''){
