@@ -581,8 +581,8 @@ class Revenger {
       if (directory !== undefined && directory !== null){
         var contents = fs.readdirSync(directory);
         
-        for (var i = 0; i < contents.length; i++) {          
-          var element = directory + "/" + contents[i];
+        for (var i = 0; i < contents.length; i++) { 
+          var element = directory + "\\" + contents[i];
           var fileStat = fs.statSync(element);
           
           if (fileStat.isFile() && path.extname(element) === '.java') {
@@ -592,7 +592,7 @@ class Revenger {
           }
         }
         if (res !== null) {
-		  this.getLinksFromParsedList();
+          this.getLinksFromParsedList();
           this.links = this.links.concat(this.filterLinks(this._templist, this.links));
           res.send(null);
         }
@@ -615,7 +615,7 @@ class Revenger {
 				if (classObj.fromTable !== undefined && classObj.fromTable !== ''){
 					fromTable = classObj.fromTable;
         } else {
-          fromTable = key.split("/").pop();
+          fromTable = key.split("/").pop().split("\\").pop();
         }
 				
         //For each of the classes we found when parsing each individual file, get their table from this object we have
