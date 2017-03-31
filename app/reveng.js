@@ -611,7 +611,7 @@ class Revenger {
 				var classObj = this._parsedList[key];
         console.log("class: " + JSON.stringify(classObj));
 				//If we found a table from parsing, set it to fromTable
-        var fromTable
+        var fromTable;
 				if (classObj.fromTable !== undefined && classObj.fromTable !== ''){
 					fromTable = classObj.fromTable;
         } else {
