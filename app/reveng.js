@@ -604,55 +604,62 @@ class Revenger {
     }
 	
 	getLinksFromParsedList(){
-		var fromTable;
-		var toTable;
 		//iterate through all the objects we got after parsing files
-		for(var key in this._parsedList){
-			if(this._parsedList.hasOwnProperty(key)){
+		for (var key in this._parsedList) {
+      console.log("key: " + key + " type of key: " + typeof key);
+			if (this._parsedList.hasOwnProperty(key)){
 				var classObj = this._parsedList[key];
+        console.log("class: " + JSON.stringify(classObj));
 				//If we found a table from parsing, set it to fromTable
-				if(classObj.fromTable!=undefined && classObj.fromTable!=''){
+        var fromTable
+				if (classObj.fromTable !== undefined && classObj.fromTable !== ''){
 					fromTable = classObj.fromTable;
-					//For each of the classes we found when parsing each individual file, get their table from this object we have
-					for(var i=0;i<classObj.toClasses.length;i++){
-						if(this._parsedList[classObj.toClasses[i]]!=undefined && this._parsedList[classObj.toClasses[i]].fromTable!=undefined && this._parsedList[classObj.toClasses[i]].fromTable!=''){
-							toTable = this._parsedList[classObj.toClasses[i]].fromTable;
-							//Push the new link to templist so it can be merged with our links later
-							this._templist.push({
-								"from":fromTable,
-								"to":toTable,
-								"isSource":true
-							})
-						}
-					}
-				}
+        } else {
+          fromTable = key.split("/").pop();
+        }
+				
+        //For each of the classes we found when parsing each individual file, get their table from this object we have
+        for (var i = 0; i < classObj.toClasses.length; i++){
+          if (this._parsedList[classObj.toClasses[i]] !== undefined 
+              && this._parsedList[classObj.toClasses[i]].fromTable !== undefined 
+              && this._parsedList[classObj.toClasses[i]].fromTable !== ''){
+                
+            var toTable = this._parsedList[classObj.toClasses[i]].fromTable;
+            //Push the new link to templist so it can be merged with our links later
+            this._templist.push({
+              "from":fromTable,
+              "to":toTable,
+              "isSource":true
+            });
+          }
+        }
 			}
 		}
 	}
 
-    getSourceForeignKeys(fileName){
-      var srcer = fs.readFileSync(fileName, 'utf8');
-      var tree = parser.parse(srcer);
-      var fromClass,fromTable;
+  getSourceForeignKeys(fileName){
+    var srcer = fs.readFileSync(fileName, 'utf8');
+    var tree = parser.parse(srcer);
+    var fromClass,fromTable;
 	  var toClasses=[];
 	  var classes;
 
-      //recursively gets the pathname 
-      function recursiveName(qualifier){
-            if(qualifier.qualifier != undefined){
-                recursiveName(qualifier.qualifier);
-            }
-            else {
-                if(qualifier.identifier != undefined){
-                    classes = classes + qualifier.identifier + '/';
-                    return;
-                }
-            }
-            if(qualifier.name != undefined){
-                if(qualifier.name.identifier != undefined)
-                    classes = classes + qualifier.name.identifier + '/';
-            }
-        }
+    //recursively gets the pathname 
+    function recursiveName(qualifier){
+      if(qualifier.qualifier != undefined){
+          recursiveName(qualifier.qualifier);
+      }
+      else {
+          if(qualifier.identifier != undefined){
+              classes = classes + qualifier.identifier + '/';
+              return;
+          }
+      }
+      if(qualifier.name != undefined){
+          if(qualifier.name.identifier != undefined)
+              classes = classes + qualifier.name.identifier + '/';
+      }
+    }
       
 	  if(tree.types[0]!=undefined){
 		  var modifiers = tree.types[0].modifiers;
@@ -672,53 +679,51 @@ class Revenger {
 		  fromTable = fromTable.substring(1,fromTable.length-1);
 		  var bodyDeclarations = tree.types[0].bodyDeclarations;
 		  for(var i=0;i<bodyDeclarations.length;i++){
-			var bodyDeclaration = bodyDeclarations[i];
-			for(var j=0;j<bodyDeclaration.modifiers.length;j++){
-			  var modifiers = bodyDeclaration.modifiers[j]
-			  if(modifiers!==undefined){
-				if(modifiers.typeName!==undefined){
-				  if(modifiers.typeName.identifier=="ManyToOne" || modifiers.typeName.identifier=="OneToOne" || modifiers.typeName.identifier=="OneToMany"){
-					var type = bodyDeclaration.type;
-						if(type!=undefined){
-							if(type.name!=undefined){
-						
-                                recursiveName(type.name);
+        var bodyDeclaration = bodyDeclarations[i];
+        for(var j=0;j<bodyDeclaration.modifiers.length;j++){
+          var modifiers = bodyDeclaration.modifiers[j];
+          if(modifiers!==undefined){
+          if(modifiers.typeName!==undefined){
+            if(modifiers.typeName.identifier=="ManyToOne" || modifiers.typeName.identifier=="OneToOne" || modifiers.typeName.identifier=="OneToMany"){
+              var type = bodyDeclaration.type;
+                if(type!=undefined){
+                  if(type.name!=undefined){
+                    recursiveName(type.name);
 
-                                //checks imports for the path if only the package name was given
-                                if(classes == type.name.identifier + '/'){
-                                    var imports = tree.imports;
-                                    for(var k = 0; k < imports.length; k++){
-                                        if(classes.includes(imports[k].name.name.identifier)){
-                                            classes = '';
-                                            recursiveName(imports[k].name);
-                                        }
-                                    }//endfor
-                                }
-							}
-						}
-					}
-				  }
-				}//endfor
-				if(classes!='' && classes != undefined){
-					toClasses.push(classes);
-				}
-			  classes='';
-			}
+                    //checks imports for the path if only the package name was given
+                    if(classes == type.name.identifier + '/'){
+                      var imports = tree.imports;
+                      for(var k = 0; k < imports.length; k++){
+                        if(classes.includes(imports[k].name.name.identifier)){
+                          classes = '';
+                          recursiveName(imports[k].name);
+                        }
+                      }//endfor
+                    }
+                  }
+                }
+              }
+            }
+          }
+          if(classes!='' && classes != undefined){
+            toClasses.push(classes);
+          }
+          classes='';
+        }//endfor
 		  }//endfor
 
 		  this._parsedList[fromClass] = {"fromTable":fromTable,"toClasses":toClasses};
 
-          //get path for the table
-          var tableName = Object.keys(this._parsedList);
-          recursiveName(tree.package.name);
-          classes = classes + tableName;
+      //get path for the table
+      var tableName = Object.keys(this._parsedList);
+      recursiveName(tree.package.name);
+      classes = classes + tableName;
 
-          //replace the key in _parsedList
-          this._parsedList[classes] = this._parsedList[tableName];
-          delete this._parsedList[tableName];
-          //console.log(this._parsedList);
-
-        }
+      //replace the key in _parsedList
+      this._parsedList[classes] = this._parsedList[tableName];
+      delete this._parsedList[tableName];
+      //console.log(this._parsedList);
+    }
 	}
 } //end class Revenger
 
