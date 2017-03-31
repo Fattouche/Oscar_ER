@@ -611,10 +611,13 @@ class Revenger {
 		for (var key in this._parsedList) {
 			if (this._parsedList.hasOwnProperty(key)){
 				var classObj = this._parsedList[key];
+                if (!classObj){
+                    continue;
+                }
 				//If we found a table from parsing, set it to fromTable
         var fromTable;
-				if (classObj.fromTable !== undefined && classObj.fromTable !== ''){
-					fromTable = classObj.fromTable;
+		if (classObj.fromTable !== undefined && classObj.fromTable !== ''){
+			fromTable = classObj.fromTable;
         } else {
           fromTable = key.split("/").pop().split("\\").pop();
         }
@@ -639,6 +642,7 @@ class Revenger {
 	}
 
   getSourceForeignKeys(fileName){
+    console.log("getting source: " + fileName);
     var srcer = fs.readFileSync(fileName, 'utf8');
     var tree = parser.parse(srcer);
     var fromClass,fromTable;
