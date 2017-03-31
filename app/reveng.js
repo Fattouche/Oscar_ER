@@ -583,6 +583,8 @@ class Revenger {
         
         for (var i = 0; i < contents.length; i++) { 
           var element = directory + "\\" + contents[i];
+        for (var i = 0; i < contents.length; i++) {          
+          var element = directory + "/" + contents[i];
           var fileStat = fs.statSync(element);
           
           if (fileStat.isFile() && path.extname(element) === '.java') {
@@ -597,7 +599,8 @@ class Revenger {
           res.send(null);
         }
       }
-      else {
+      }
+	  else {
         console.log("Something went wrong with traverseDirectory, ended prematurely");
         res.send(null);
       }
@@ -661,14 +664,32 @@ class Revenger {
       }
     }
       
+      //recursively gets the pathname 
+      function recursiveName(qualifier){
+            if(qualifier.qualifier != undefined){
+                recursiveName(qualifier.qualifier);
+            }
+            else {
+                if(qualifier.identifier != undefined){
+                    classes = classes + qualifier.identifier + '/';
+                    return;
+                }
+            }
+            if(qualifier.name != undefined){
+                if(qualifier.name.identifier != undefined)
+                    classes = classes + qualifier.name.identifier + '/';
+            }
+        }
+  
 	  if(tree.types[0]!=undefined){
 		  var modifiers = tree.types[0].modifiers;
-		  for(var i=0;modifiers.length;i++){
+		  for(var i=0;i<modifiers.length;i++){
 				if(modifiers[i]!=undefined){
 					var typeName = modifiers[i].typeName;
 					if(typeName!==undefined){
 					  if(typeName.identifier=="Table"){
 						fromTable = tree.types[0].modifiers[i].values[0].value.escapedValue;
+						fromTable = fromTable.substring(1,fromTable.length-1);
 						fromClass = tree.types[0].name.identifier;
 						break;
 					  }
@@ -676,7 +697,7 @@ class Revenger {
 				}
 		  }
 		  
-		  fromTable = fromTable.substring(1,fromTable.length-1);
+		  
 		  var bodyDeclarations = tree.types[0].bodyDeclarations;
 		  for(var i=0;i<bodyDeclarations.length;i++){
         var bodyDeclaration = bodyDeclarations[i];
