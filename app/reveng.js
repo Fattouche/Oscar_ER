@@ -578,7 +578,7 @@ class Revenger {
     }
     
     traverseDirectory(directory, res) {
-      if (directory !== undefined && directory !== null){
+      if (directory !== undefined && directory !== null && directory !== ''){
         var contents = fs.readdirSync(directory);
         
         for (var i = 0; i < contents.length; i++) { 
@@ -601,7 +601,6 @@ class Revenger {
       }
       }
 	  else {
-        console.log("Something went wrong with traverseDirectory, ended prematurely");
         res.send(null);
       }
     }
