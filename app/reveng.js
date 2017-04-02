@@ -226,7 +226,8 @@ class Revenger {
     getAllForeignKeys(res) {
         var self = this;
         this.db.query("SELECT TABLE_NAME, REFERENCED_TABLE_NAME \
-             FROM information_schema.REFERENTIAL_CONSTRAINTS;",
+             FROM information_schema.REFERENTIAL_CONSTRAINTS \
+			 WHERE CONSTRAINT_SCHEMA = '" + this.databasename + "';",
             function(err, rows, fields) {
                 if (!err) {
                     for (var i in rows) {
