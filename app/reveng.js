@@ -607,6 +607,7 @@ class Revenger {
     }
 	
 	getLinksFromParsedList(){
+		console.log("parsed list: " + JSON.stringify(this._parsedList));
 		//iterate through all the objects we got after parsing files
 		for (var key in this._parsedList) {
 			if (this._parsedList.hasOwnProperty(key)){
@@ -738,11 +739,11 @@ class Revenger {
 		recursiveName(tree.package.name);
 		classes = classes.substring(0, classes.length - 1);
 	  }
-	  if(fromClass !== undefined && fromClass !== null){
-		  classes = classes + "/" + fromClass;
+	  if(classes !== "" && fromClass !== undefined && fromClass !== null){
+		  fromClass = classes + "/" + fromClass;
 		  //replace the key in _parsedList
-		  this._parsedList[classes] = {"fromTable":fromTable,"toClasses":toClasses};
 	  }
+	  this._parsedList[fromClass] = {"fromTable":fromTable,"toClasses":toClasses};
 	  classes='';
     }
 	}
