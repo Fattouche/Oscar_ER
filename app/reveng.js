@@ -607,7 +607,6 @@ class Revenger {
     }
 	
 	getLinksFromParsedList(){
-		console.log("parsed list: " + JSON.stringify(this._parsedList));
 		//iterate through all the objects we got after parsing files
 		for (var key in this._parsedList) {
 			if (this._parsedList.hasOwnProperty(key)){
