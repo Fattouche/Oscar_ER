@@ -664,7 +664,6 @@ class Revenger {
                 if(qualifier.name.identifier != undefined)
                     classes = classes + qualifier.name.identifier + '/';
             }
-            classes = classes.substring(0, classes.length - 1);
         }
   
 	  if(tree.types[0]!=undefined){
@@ -696,7 +695,7 @@ class Revenger {
                 if(type!=undefined){
                   if(type.name!=undefined){
                     recursiveName(type.name);
-
+					classes = classes.substring(0, classes.length - 1);
                     //checks imports for the path if only the package name was given
                     if(classes == type.name.identifier){
                       var imports = tree.imports;
@@ -704,6 +703,7 @@ class Revenger {
                         if(classes.includes(imports[k].name.name.identifier)){
                           classes = '';
                           recursiveName(imports[k].name);
+						  classes = classes.substring(0, classes.length - 1);
 						  break;
                         }
                       }//endfor
@@ -716,7 +716,7 @@ class Revenger {
                             var temp = classes;
                             classes = '';
                             recursiveName(tree_package.name);
-                            classes = classes + "/" + temp;
+                            classes = classes + temp;
                         }
                     }
                   }
@@ -736,6 +736,7 @@ class Revenger {
       //get path for the table
 	  if(tree.package!=null && tree.package!=undefined)
 		recursiveName(tree.package.name);
+		classes = classes.substring(0, classes.length - 1);
 	  if(classes!=='' && fromClass!=undefined){
 		  classes = classes + "/" + fromClass;
 		  //replace the key in _parsedList
