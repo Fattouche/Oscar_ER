@@ -648,23 +648,6 @@ class Revenger {
     var fromClass,fromTable;
 	  var toClasses=[];
 	  var classes;
-
-    //recursively gets the pathname 
-    function recursiveName(qualifier){
-      if(qualifier.qualifier != undefined){
-          recursiveName(qualifier.qualifier);
-      }
-      else {
-          if(qualifier.identifier != undefined){
-              classes = classes + qualifier.identifier + '/';
-              return;
-          }
-      }
-      if(qualifier.name != undefined){
-          if(qualifier.name.identifier != undefined)
-              classes = classes + qualifier.name.identifier + '/';
-      }
-    }
       
       //recursively gets the pathname 
       function recursiveName(qualifier){
@@ -720,6 +703,7 @@ class Revenger {
                         if(classes.includes(imports[k].name.name.identifier)){
                           classes = '';
                           recursiveName(imports[k].name);
+						  break;
                         }
                       }//endfor
                     }
@@ -735,16 +719,17 @@ class Revenger {
         }//endfor
 		  }//endfor
 
-		  this._parsedList[fromClass] = {"fromTable":fromTable,"toClasses":toClasses};
+		  
 
       //get path for the table
-      var tableName = Object.keys(this._parsedList);
-      recursiveName(tree.package.name);
-      classes = classes + tableName;
-
-      //replace the key in _parsedList
-      this._parsedList[classes] = this._parsedList[tableName];
-      delete this._parsedList[tableName];
+	  if(tree.package!=null && tree.package!=undefined)
+		recursiveName(tree.package.name);
+	  if(classes!=='' && fromClass!=undefined){
+		  classes = classes + fromClass;
+		  //replace the key in _parsedList
+		  this._parsedList[classes] = {"fromTable":fromTable,"toClasses":toClasses};
+	  }
+	  classes='';
       //console.log(this._parsedList);
     }
 	}
