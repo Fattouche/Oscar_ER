@@ -646,8 +646,8 @@ class Revenger {
     var srcer = fs.readFileSync(fileName, 'utf8');
     var tree = parser.parse(srcer);
     var fromClass,fromTable;
-	  var toClasses=[];
-	  var classes;
+	var toClasses = [];
+	var classes = "";
       
       //recursively gets the pathname 
       function recursiveName(qualifier){
@@ -734,16 +734,16 @@ class Revenger {
 		  
 
       //get path for the table
-	  if(tree.package!=null && tree.package!=undefined)
+	  if(tree.package !== null && tree.package !== undefined){
 		recursiveName(tree.package.name);
 		classes = classes.substring(0, classes.length - 1);
-	  if(classes!=='' && fromClass!=undefined){
+	  }
+	  if(fromClass !== undefined && fromClass !== null){
 		  classes = classes + "/" + fromClass;
 		  //replace the key in _parsedList
 		  this._parsedList[classes] = {"fromTable":fromTable,"toClasses":toClasses};
 	  }
 	  classes='';
-      //console.log(this._parsedList);
     }
 	}
 } //end class Revenger
