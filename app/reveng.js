@@ -664,6 +664,7 @@ class Revenger {
                 if(qualifier.name.identifier != undefined)
                     classes = classes + qualifier.name.identifier + '/';
             }
+            classes = classes.substring(0, classes.length - 1);
         }
   
 	  if(tree.types[0]!=undefined){
@@ -683,8 +684,8 @@ class Revenger {
 		  }
 		  
 		  
-		  var bodyDeclarations = tree.types[0].bodyDeclarations;
-		  for(var i=0;i<bodyDeclarations.length;i++){
+	   var bodyDeclarations = tree.types[0].bodyDeclarations;
+	   for(var i=0;i<bodyDeclarations.length;i++){
         var bodyDeclaration = bodyDeclarations[i];
         for(var j=0;j<bodyDeclaration.modifiers.length;j++){
           var modifiers = bodyDeclaration.modifiers[j];
@@ -697,7 +698,7 @@ class Revenger {
                     recursiveName(type.name);
 
                     //checks imports for the path if only the package name was given
-                    if(classes == type.name.identifier + '/'){
+                    if(classes == type.name.identifier){
                       var imports = tree.imports;
                       for(var k = 0; k < imports.length; k++){
                         if(classes.includes(imports[k].name.name.identifier)){
@@ -706,6 +707,17 @@ class Revenger {
 						  break;
                         }
                       }//endfor
+                    } 
+
+                    //checks package for the path if only the package name was given
+                    if(classes == type.name.identifier){
+                        var tree_package = tree.package;
+                        if(tree_package != null){
+                            var temp = classes;
+                            classes = '';
+                            recursiveName(tree_package.name);
+                            classes = classes + "/" + temp;
+                        }
                     }
                   }
                 }
@@ -717,7 +729,7 @@ class Revenger {
           }
           classes='';
         }//endfor
-		  }//endfor
+	   }//endfor
 
 		  
 
@@ -725,7 +737,7 @@ class Revenger {
 	  if(tree.package!=null && tree.package!=undefined)
 		recursiveName(tree.package.name);
 	  if(classes!=='' && fromClass!=undefined){
-		  classes = classes + fromClass;
+		  classes = classes + "/" + fromClass;
 		  //replace the key in _parsedList
 		  this._parsedList[classes] = {"fromTable":fromTable,"toClasses":toClasses};
 	  }
