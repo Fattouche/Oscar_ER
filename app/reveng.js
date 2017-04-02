@@ -631,8 +631,8 @@ class Revenger {
             var toTable = this._parsedList[classObj.toClasses[i]].fromTable;
             //Push the new link to templist so it can be merged with our links later
             this._templist.push({
-              "from":fromTable,
-              "to":toTable,
+              "from":fromTable.toLowerCase(),
+              "to":toTable.toLowerCase(),
               "isSource":true
             });
           }
