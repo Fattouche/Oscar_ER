@@ -4,7 +4,7 @@
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * of the License, or (at your option) any later version. 
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,589 +21,225 @@
  * Hamilton
  * Ontario, Canada
  */
-package org.oscarehr.common.model;
-
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.GregorianCalendar;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.PostLoad;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-
-import org.oscarehr.PMmodule.model.Program;
 
 
-/**
- * The persistent class for the admission database table.
- * 
- */
-@Entity
-@Table(name="admission")
-public class Admission extends AbstractModel<Integer> implements Serializable {
-	private static final long serialVersionUID = 1L;
-	public static final String STATUS_CURRENT="current";
-	public static final String STATUS_DISCHARGED="discharged";
+package oscar;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.servlet.http.HttpServletRequest;
+
+import oscar.oscarDB.DBPreparedHandler;
+import oscar.oscarDB.DBPreparedHandlerParam;
+import oscar.util.UtilDict;
+
+public class AppointmentMainBean {
 	
-	
-	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="program_id", referencedColumnName="id", insertable=false, updatable=false)
-	private Program program;
-	
-	
-	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="team_id", insertable=false, updatable=false)
-	private org.oscarehr.PMmodule.model.ProgramTeam team;
-	
-	
-	@ManyToOne(fetch=FetchType.EAGER, optional=true)
-	@JoinColumn(name="clientstatus_id", insertable=false, updatable=false, nullable=true)
-	private org.oscarehr.PMmodule.model.ProgramClientStatus clientStatus;
-	
-	
-	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="client_id", referencedColumnName="demographic_no", insertable=false, updatable=false)
-	private org.oscarehr.common.model.Demographic client;
-	
-	
-	@Transient
-	private String TeamName;
-	
-	@Transient
-	private String ProgramName;
-	
-	@Transient
-	private String ProgramType;
-	
-	@Transient
-	private int hashCode = Integer.MIN_VALUE;
-				
+  private DBPreparedHandler dbPH=null;
+  private UtilDict toFile=null;
+  private UtilDict dbSQL=null;
+  private UtilDict requestUtilDict=null;
+  private String targetType=null;
+  private boolean bDoConfigure = false;
 
-	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="am_id", unique=true, nullable=false)
-	private Integer id;
+  public UtilDict getTargets() {return toFile;}
+  public UtilDict getRequestUtilDict() {return requestUtilDict;}
+  public boolean getBDoConfigure() {return bDoConfigure;}
+  public void setBDoConfigure() { bDoConfigure = false;}
 
-    @Temporal( TemporalType.TIMESTAMP)
-	@Column(name="admission_date")
-	private Date admissionDate;
+  public void doConfigure( String[][]dbOperation ) {
+    bDoConfigure = true;
+    if(dbPH!=null) dbPH=null;
 
-	@Column(name="admission_from_transfer", nullable=false)
-	private boolean admissionFromTransfer;
+    dbSQL=new UtilDict();
+    dbSQL.setDef(dbOperation);
+    dbPH=new DBPreparedHandler();
+  }
 
-    @Lob()
-	@Column(name="admission_notes")
-	private String admissionNotes;
+  public void doConfigure( String[][]dbOperation,String[][]controlToFile) {
+    bDoConfigure = true;
+    if(dbPH!=null) dbPH=null;
 
-	@Column(name="admission_status", length=24)
-	private String admissionStatus;
+    toFile=new UtilDict();
+    toFile.setDef(controlToFile);
+    dbSQL=new UtilDict();
+    dbSQL.setDef(dbOperation);
 
-	@Column(name="automatic_discharge")
-	private boolean automaticDischarge;
+    dbPH=new DBPreparedHandler();
+  }
+  public void doCommand(HttpServletRequest request) {
+  	//wrap the request object into a Dict help object
+  	requestUtilDict=new UtilDict();
+  	requestUtilDict.setDef(request);
+  }
 
-	@Column(name="client_id")
-	private Integer clientId = null;
+  public String whereTo() {
+  	targetType=requestUtilDict.getDef("displaymode","");
+  	return toFile.getDef(targetType,"");
+  }
+  public String whereTo(String displaymode) {
+  	targetType=requestUtilDict.getDef(displaymode,"");
+  	return toFile.getDef(targetType,"");
+  }
 
-	@Column(name="clientstatus_id")
-	private Integer clientStatusId = null;
+  public ResultSet queryResults(String[] aKeyword, String dboperation) throws Exception{
+	 	String sqlQuery =null;
 
-    @Temporal( TemporalType.TIMESTAMP)
-	@Column(name="discharge_date")
-	private Date dischargeDate;
+	  ResultSet rs =null;
+	  if(aKeyword[0].equals("*")) {
+	  	sqlQuery = dbSQL.getDef("search*","");
+    	rs = dbPH.queryResults(sqlQuery);
+	  } else {
+	  	sqlQuery = dbSQL.getDef(dboperation,"");
+    	rs = dbPH.queryResults(sqlQuery, aKeyword);
+	  }
 
-	@Column(name="discharge_from_transfer", nullable=false)
-	private boolean dischargeFromTransfer;
+  	return rs;
+  }
 
-    @Lob()
-	@Column(name="discharge_notes")
-	private String dischargeNotes;
+  public ResultSet queryResults_paged(String[] aKeyword, String dboperation, int iOffSet) throws Exception{
+	 	String sqlQuery =null;
 
-	@Column(name="program_id", nullable=false)
-	private Integer programId;
+	  ResultSet rs =null;
+	  if(aKeyword[0].equals("*")) {
+	  	sqlQuery = dbSQL.getDef("search*","");
+  	    rs = dbPH.queryResults_paged(sqlQuery, iOffSet);
+	  } else {
+	  	sqlQuery = dbSQL.getDef(dboperation,"");
+  	    rs = dbPH.queryResults_paged(sqlQuery, aKeyword, iOffSet);
+	  }
 
-	@Column(name="provider_no", nullable=false, length=6)
-	private String providerNo;
+	return rs;
+}
 
-	@Column(length=10)
-	private String radioDischargeReason;
+  public ResultSet queryResults_paged(DBPreparedHandlerParam[] aKeyword, String dboperation, int iOffSet) throws Exception{
+	 	String sqlQuery =null;
 
-	@Column(name="team_id")
-	private Integer teamId = null;
+	  ResultSet rs =null;
+	  if(aKeyword[0].getParamType().equals(DBPreparedHandlerParam.PARAM_STRING) &&
+			  aKeyword[0].getStringValue().equals("*")) {
+	  	sqlQuery = dbSQL.getDef("search*","");
+	    rs = dbPH.queryResults_paged(sqlQuery, iOffSet);
+	  } else {
+	  	sqlQuery = dbSQL.getDef(dboperation,"");
+	    rs = dbPH.queryResults_paged(sqlQuery, aKeyword, iOffSet);
+	  }
+	return rs;
+  }
 
-	@Column(name="temp_admission", length=1)
-	private String tempAdmission;
+  public Object[] queryResultsCaisi(String[] aKeyword, String dboperation) throws Exception{
+	String sqlQuery =null;
+	Object[] rs =null;
+	  if(aKeyword[0].equals("*")) {
+	  	sqlQuery = dbSQL.getDef("search*","");
+	  	rs = dbPH.queryResultsCaisi(sqlQuery);
+	  } else {
+	  	sqlQuery = dbSQL.getDef(dboperation,"");
+	  	rs = dbPH.queryResultsCaisi(sqlQuery, aKeyword);
+	  }
+	return rs;
+  }
+  public Object[] queryResultsCaisi(String aKeyword, String dboperation) throws Exception{
+	  String sqlQuery = null;
+	  Object[] rs =null;
+	  if(aKeyword.equals("*")) {
+	  	sqlQuery = dbSQL.getDef("search*","");
+    	rs = dbPH.queryResultsCaisi(sqlQuery);
+	  } else {
+	  	sqlQuery = dbSQL.getDef(dboperation,"");
+    	rs = dbPH.queryResultsCaisi(sqlQuery, aKeyword);
+	  }
+  	return rs;
+  }
+  public Object[] queryResultsCaisi(int aKeyword, String dboperation) throws Exception{
+	  String sqlQuery = null;
+  	sqlQuery = dbSQL.getDef(dboperation,"");
+  	return dbPH.queryResultsCaisi(sqlQuery, aKeyword);
+  }
+  public Object[] queryResultsCaisi(String dboperation) throws Exception {
+      String sqlQuery = dbSQL.getDef(dboperation);
+      return dbPH.queryResultsCaisi(sqlQuery);
+    }
 
-	@Column(name="temp_admit_discharge", length=1)
-	private String tempAdmitDischarge;
+  public ResultSet queryResults(String aKeyword, String dboperation) throws Exception{
+	  String sqlQuery = null;
+	  ResultSet rs =null;
+	  if(aKeyword.equals("*")) {
+	  	sqlQuery = dbSQL.getDef("search*","");
+    	rs = dbPH.queryResults(sqlQuery);
+	  } else {
+	  	sqlQuery = dbSQL.getDef(dboperation,"");
+    	rs = dbPH.queryResults(sqlQuery, aKeyword);
+	  }
+  	return rs;
+  }
 
-	@Column(name="temporary_admission_flag")
-	private boolean temporaryAdmissionFlag;
-
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date lastUpdateDate = null;
-	
-	public Admission () {
-		// auto generated code... bah
+  public ResultSet queryResults_paged(String aKeyword, String dboperation, int iOffSet) throws Exception{
+	String sqlQuery = null;
+	ResultSet rs =null;
+	if(aKeyword.equals("*")) {
+	  	sqlQuery = dbSQL.getDef("search*","");
+    	rs = dbPH.queryResults_paged(sqlQuery, iOffSet);
+	} else {
+	  	sqlQuery = dbSQL.getDef(dboperation,"");
+        //works with only one " like ?"
+	  	if(aKeyword.length()<1){
+          int iIndex1= sqlQuery.indexOf("like");
+	  	  if(iIndex1>0){
+            String str1=sqlQuery.substring(0, iIndex1-1).trim();
+            String str2=str1.substring(0, str1.lastIndexOf(" "));
+            String str3=sqlQuery.substring(iIndex1+5, sqlQuery.length());
+            int iIndex2=str3.indexOf("?");
+//            if(str3.indexOf("and")>iIndex2) iIndex2=str3.indexOf("and") + 3;
+            sqlQuery= str2 +  " 1=1 " + str3.substring(iIndex2+1, str3.length());
+	  	  }
+    	  rs = dbPH.queryResults_paged(sqlQuery, iOffSet);
+        }
+        else
+        {
+          rs = dbPH.queryResults_paged(sqlQuery, aKeyword, iOffSet);
+        }
 	}
-	
-	/**
-	 * Constructor for primary key
-	 */
-	public Admission (Long id) {
-		Integer intId = id.intValue();
-		this.setId(intId);
-	}
+  	return rs;
+  }
 
-	/**
-	 * Constructor for required fields
-	 */
-	public Admission(Long id, String providerNo, Integer clientId, Integer programId) {
-		Integer intId = id.intValue();
-		this.setId(intId);
-		this.setProviderNo(providerNo);
-		this.setClientId(clientId);
-		this.setProgramId(programId);
-	}
+  public ResultSet queryResults(int aKeyword, String dboperation) throws Exception{
+	  String sqlQuery = null;
+	  ResultSet rs =null;
+  	sqlQuery = dbSQL.getDef(dboperation,"");
+   	rs = dbPH.queryResults(sqlQuery, aKeyword);
+  	return rs;
+  }
+  public ResultSet queryResults(String[] aKeyword, int[] nKeyword, String dboperation) throws Exception{
+    String sqlQuery = null;
+    ResultSet rs =null;
+  	sqlQuery = dbSQL.getDef(dboperation,"");
+   	rs = dbPH.queryResults(sqlQuery, aKeyword, nKeyword);
+  	return rs;
+  }
 
-	public Integer getId() {
-		return this.id;
-	}
-
-	public void setId(Integer amId) {
-		this.id = amId;
-	}
-
-	public boolean isDischargeFromTransfer() {
-        return dischargeFromTransfer;
+    public ResultSet queryResults(int[] parameters, String dboperation) throws Exception{
+      String sqlQuery = dbSQL.getDef(dboperation);
+      return dbPH.queryResults(sqlQuery, parameters);
+    }
+    /* This method is called by querys that dont need to set a PreparedStatement */
+    public ResultSet queryResults(String dboperation) throws Exception {
+      String sqlQuery = dbSQL.getDef(dboperation);
+      return dbPH.queryResults(sqlQuery);
     }
 
-    public void setDischargeFromTransfer(boolean dischargeFromTransfer) {
-        this.dischargeFromTransfer = dischargeFromTransfer;
-    }
-
-    public boolean isAdmissionFromTransfer() {
-        return admissionFromTransfer;
-    }
-
-    public void setAdmissionFromTransfer(boolean admissionFromTransfer) {
-        this.admissionFromTransfer = admissionFromTransfer;
-    }
-
-    public void setProgram(Program p) {
-		this.program = p;
-	}
-
-	public Program getProgram() {
-		return program;
-	}
-	
-	public GregorianCalendar getAdmissionCalendar()
-	{
-		GregorianCalendar cal=new GregorianCalendar();
-		cal.setTime(admissionDate);
-		return(cal);
-	}
-	
-	public GregorianCalendar getDischargeCalendar()
-	{
-		if (dischargeDate==null) return(null);
-		
-		GregorianCalendar cal=new GregorianCalendar();
-		cal.setTime(dischargeDate);
-		return(cal);
-	}
-	
-	public String getAdmissionDate(String format) {
-		SimpleDateFormat formatter = new SimpleDateFormat(format);
-		return formatter.format(this.getAdmissionDate());		
-	}
-
-	/**
-     * Return the value associated with the column: team_id
-     */
-    public org.oscarehr.PMmodule.model.ProgramTeam getTeam() {
-    	return team;
-    }
-
-	/**
-     * Set the value related to the column: team_id
-     * @param team the team_id value
-     */
-    public void setTeam(org.oscarehr.PMmodule.model.ProgramTeam team) {
-    	this.team = team;
-    }
-
-	/**
-     * Return the value associated with the column: clientstatus_id
-     */
-    public org.oscarehr.PMmodule.model.ProgramClientStatus getClientStatus() {
-    	return clientStatus;
-    }
-
-	/**
-     * Set the value related to the column: clientstatus_id
-     * @param clientStatus the clientstatus_id value
-     */
-    public void setClientStatus(org.oscarehr.PMmodule.model.ProgramClientStatus clientStatus) {
-    	this.clientStatus = clientStatus;
-    }
-
-	/**
-     * Return the value associated with the column: client_id
-     */
-    public org.oscarehr.common.model.Demographic getClient() {
-    	return client;
-    }
-
-	/**
-     * Set the value related to the column: client_id
-     * @param client the client_id value
-     */
-    public void setClient(org.oscarehr.common.model.Demographic client) {
-    	this.client = client;
-    }
-
-	/**
-     * Return the value associated with the column: team_id
-     */
-    public Integer getTeamId() {
-    	return teamId;
-    }
-
-	/**
-     * Return the value associated with the column: teamName
-     */
-    public String getTeamName() {
-    	return TeamName;
-    }
-
-	/**
-     * Set the value related to the column: teamName
-     * @param teamName the teamName value
-     */
-    public void setTeamName(String teamName) {
-    	this.TeamName = teamName;
-    }
-
-	/**
-     * Return the value associated with the column: clientstatus_id
-     */
-    public Integer getClientStatusId() {
-    	return clientStatusId;
-    }
-
-	/**
-     * Return the value associated with the column: temporary_admission_flag
-     */
-    public boolean isTemporaryAdmission() {
-    	return temporaryAdmissionFlag;
-    }
-
-	/**
-     * Set the value related to the column: temporary_admission_flag
-     * @param temporaryAdmission the temporary_admission_flag value
-     */
-    public void setTemporaryAdmission(boolean temporaryAdmission) {
-    	this.temporaryAdmissionFlag = temporaryAdmission;
-    }
-
-	/**
-     * Return the value associated with the column: discharge_notes
-     */
-    public String getDischargeNotes() {
-    	return dischargeNotes;
-    }
-
-	/**
-     * Set the value related to the column: discharge_notes
-     * @param dischargeNotes the discharge_notes value
-     */
-    public void setDischargeNotes(String dischargeNotes) {
-    	this.dischargeNotes = dischargeNotes;
-    }
-
-	/**
-     * Return the value associated with the column: discharge_date
-     */
-    public java.util.Date getDischargeDate() {
-    	return dischargeDate;
-    }
-
-	/**
-     * Set the value related to the column: discharge_date
-     * @param dischargeDate the discharge_date value
-     */
-    public void setDischargeDate(java.util.Date dischargeDate) {
-    	this.dischargeDate = dischargeDate;
-    }
-
-    public String getFormattedDischargeDate() {
-	Date d = getDischargeDate();
-	if(d==null) {return "";}
-	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-	return formatter.format(d);
-    }
-
-	/**
-     * Set the value related to the column: team_id
-     * @param teamId the team_id value
-     */
-    public void setTeamId(Integer teamId) {
-    	this.teamId = teamId;
-    }
-
-	/**
-     * Set the value related to the column: clientstatus_id
-     * @param clientStatusId the clientstatus_id value
-     */
-    public void setClientStatusId(Integer clientStatusId) {
-    	this.clientStatusId = clientStatusId;
-    }
-
-	/**
-     * Return the value associated with the column: programName
-     */
-    public String getProgramName() {
-    	return ProgramName;
-    }
-
-	/**
-     * Set the value related to the column: programName
-     * @param programName the programName value
-     */
-    public void setProgramName(String programName) {
-    	this.ProgramName = programName;
-    }
-
-	/**
-     * Return the value associated with the column: programType
-     */
-    public String getProgramType() {
-    	return ProgramType;
-    }
-
-	/**
-     * Set the value related to the column: programType
-     * @param programType the programType value
-     */
-    public void setProgramType(String programType) {
-    	this.ProgramType = programType;
-    }
-
-	
-	/**
-     * Return the value associated with the column: provider_no
-     */
-    public String getProviderNo() {
-    	return providerNo;
-    }
-
-	/**
-     * Set the value related to the column: provider_no
-     * @param providerNo the provider_no value
-     */
-    public void setProviderNo(String providerNo) {
-    	this.providerNo = providerNo;
-    }
-
-	/**
-     * Return the value associated with the column: admission_status
-     */
-    public String getAdmissionStatus() {
-    	return admissionStatus;
-    }
-
-	/**
-     * Set the value related to the column: admission_status
-     * @param admissionStatus the admission_status value
-     */
-    public void setAdmissionStatus(String admissionStatus) {
-    	this.admissionStatus = admissionStatus;
-    }
-
-	/**
-     * Return the value associated with the column: client_id
-     */
-    public Integer getClientId() {
-    	return clientId;
-    }
-
-	/**
-     * Set the value related to the column: client_id
-     * @param clientId the client_id value
-     */
-    public void setClientId(Integer clientId) {
-    	this.clientId = clientId;
-    }
-
-	/**
-     * Return the value associated with the column: admission_date
-     */
-    public java.util.Date getAdmissionDate() {
-    	return admissionDate;
-    }
-
-	/**
-     * Set the value related to the column: admission_date
-     * @param admissionDate the admission_date value
-     */
-    public void setAdmissionDate(java.util.Date admissionDate) {
-    	this.admissionDate = admissionDate;
-    }
-
-	/**
-     * Return the value associated with the column: admission_notes
-     */
-    public String getAdmissionNotes() {
-    	return admissionNotes;
-    }
-
-	/**
-     * Set the value related to the column: admission_notes
-     * @param admissionNotes the admission_notes value
-     */
-    public void setAdmissionNotes(String admissionNotes) {
-    	this.admissionNotes = admissionNotes;
-    }
-
-	/**
-     * Return the value associated with the column: temp_admission
-     */
-    public String getTempAdmission() {
-    	return tempAdmission;
-    }
-
-	/**
-     * Set the value related to the column: temp_admission
-     * @param tempAdmission the temp_admission value
-     */
-    public void setTempAdmission(String tempAdmission) {
-    	this.tempAdmission = tempAdmission;
-    }
-
-	/**
-     * Return the value associated with the column: program_id
-     */
-    public Integer getProgramId() {
-    	return programId;
-    }
-
-	/**
-     * Set the value related to the column: program_id
-     * @param programId the program_id value
-     */
-    public void setProgramId(Integer programId) {
-    	this.programId = programId;
-    }
-
-	/**
-     * Return the value associated with the column: temp_admit_discharge
-     */
-    public String getTempAdmitDischarge() {
-    	return tempAdmitDischarge;
-    }
-
-	/**
-     * Set the value related to the column: temp_admit_discharge
-     * @param tempAdmitDischarge the temp_admit_discharge value
-     */
-    public void setTempAdmitDischarge(String tempAdmitDischarge) {
-    	this.tempAdmitDischarge = tempAdmitDischarge;
-    }
-
-	/**
-     * Return the value associated with the column: radioDischargeReason
-     */
-    public String getRadioDischargeReason() {
-    	return radioDischargeReason;
-    }
-
-	/**
-     * Set the value related to the column: radioDischargeReason
-     * @param radioDischargeReason the radioDischargeReason value
-     */
-    public void setRadioDischargeReason(String radioDischargeReason) {
-    	this.radioDischargeReason = radioDischargeReason;
-    }    
-    
-	public boolean getAutomaticDischarge() {
-		return automaticDischarge;
-	}
-
-	public void setAutomaticDischarge(boolean automaticDischarge) {
-		this.automaticDischarge = automaticDischarge;
-	}
-
-	@Override
-    public boolean equals(Object obj) {
-    	if (null == obj) return false;
-    	if (!(obj instanceof org.oscarehr.common.model.Admission)) return false;
-    	else {
-    		org.oscarehr.common.model.Admission admission = (org.oscarehr.common.model.Admission) obj;
-    		if (null == this.getId() || null == admission.getId()) return false;
-    		else return (this.getId().equals(admission.getId()));
-    	}
-    }
-
-	@Override
-    public int hashCode() {
-    	if (Integer.MIN_VALUE == this.hashCode) {
-    		if (null == this.getId()) return super.hashCode();
-    		else {
-    			String hashStr = this.getClass().getName() + ":" + this.getId().hashCode();
-    			this.hashCode = hashStr.hashCode();
-    		}
-    	}
-    	return this.hashCode;
-    }
-
-	@Override
-    public String toString() {
-    	return super.toString();
-    }
-	
-	@PostLoad
-	public void postLoad() {		
-		TeamName = team == null ? "" : team.getName();
-		ProgramName = program.getName();
-		ProgramType = program.getType();
-		
-	}
-
-	public boolean isTemporaryAdmissionFlag() {
-		return temporaryAdmissionFlag;
-	}
-
-	public void setTemporaryAdmissionFlag(boolean temporaryAdmissionFlag) {
-		this.temporaryAdmissionFlag = temporaryAdmissionFlag;
-	}
-
-	public Date getLastUpdateDate() {
-		return lastUpdateDate;
-	}
-
-	public void setLastUpdateDate(Date lastUpdateDate) {
-		this.lastUpdateDate = lastUpdateDate;
-	}
-
-	@PreUpdate
-	@PrePersist
-	protected void jpa_updateDate() {
-		setLastUpdateDate(new Date());
-	}
-	
+  public String getString(ResultSet rs, java.lang.String columnName) throws SQLException
+  {
+  	return Misc.getString(rs, columnName);
+  }
+  public String getString(ResultSet rs, int columnIndex) throws SQLException
+  {
+	  return Misc.getString(rs, columnIndex);
+  }
+  public String getString(Object o)
+  {
+	  if(o==null) return "";
+	  return (String)o;
+  }
 }
